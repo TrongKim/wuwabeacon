@@ -1,0 +1,37 @@
+@if (isOpen) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="closePopup.emit()">
+    <div class="bg-[#1f2937] border border-[#334d6c] text-white rounded-xl max-w-[600px] w-full max-h-[80vh] flex flex-col overflow-hidden" (click)="$event.stopPropagation()">
+      <div class="p-4 border-b border-[#1a3759]">
+        <h2 class="text-2xl font-bold text-center">Filter</h2>
+      </div>
+      <div class="p-5 overflow-y-auto space-y-6">
+        <!-- Cost -->
+        <div>
+          <span class="font-semibold block mb-2">Echo Cost</span>
+          <div class="flex gap-2 flex-wrap">
+            @for (c of costs; track c.code) {
+              <button
+                (click)="toggleCost(c.code)"
+                [class]="'px-3 py-2 rounded border text-sm ' + (isActiveCost(c.code) ? 'bg-[#4d647e] border-[#4d647e]' : 'bg-[#334d6c] border-[#334d6c]')"
+              >{{ c.label }}</button>
+            }
+          </div>
+        </div>
+        <!-- Sets -->
+        @if (echoSets.length) {
+          <div>
+            <span class="font-semibold block mb-2">Echo Set</span>
+            <div class="flex gap-2 flex-wrap">
+              @for (s of echoSets; track s.id) {
+                <button
+                  (click)="toggleSet(s.id, s.name)"
+                  [class]="'px-3 py-2 rounded border text-sm ' + (isActiveSet(s.id) ? 'bg-[#4d647e] border-[#4d647e]' : 'bg-[#334d6c] border-[#334d6c]')"
+                >{{ s.name }}</button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

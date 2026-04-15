@@ -1,0 +1,293 @@
+<div class="flex min-h-screen bg-[#0d0d0d] text-white" #scrollContainer (scroll)="onContainerScroll($event)">
+  <main class="flex-1 mr-[225px] max-[1024px]:mr-0">
+    <div class="max-w-5xl mx-auto px-6 py-8">
+
+      <!-- Mobile menu toggle -->
+      @if (!isMobileMenuOpen()) {
+        <button (click)="isMobileMenuOpen.set(true)" class="fixed top-14 right-4 z-50 lg:hidden bg-[#1f293780] p-2 rounded-lg border border-[#374151]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      }
+
+      <!-- Overview -->
+      <section id="overview" class="mb-0 pt-16">
+        <div class="flex flex-col md:flex-row gap-8 items-center mb-8">
+          <div class="flex-1 text-center md:text-left">
+            <h1 class="text-4xl md:text-6xl font-bold text-[#38bdf8] mb-4">{{ guide.title }}</h1>
+            @if (guide.character_tags?.length) {
+              <div class="flex flex-wrap gap-2 justify-center md:justify-start mb-4">
+                <span class="bg-[#60a5fa] text-white text-xs px-2 py-1 rounded">{{ guide.character_tags[0] }}</span>
+                @for (tag of guide.character_tags.slice(1); track tag) {
+                  <span class="bg-[#374151] text-white text-xs px-2 py-1 rounded">{{ tag }}</span>
+                }
+              </div>
+            }
+            <p class="text-[#94a3b8] leading-relaxed text-justify">{{ guide.description }}</p>
+          </div>
+        </div>
+        @if (guide.thumbnail) {
+          <img [src]="guide.thumbnail" alt="guide" class="w-full h-auto object-contain mb-8" />
+        }
+        <h2 class="text-3xl font-bold text-[#38bdf8] mb-6">Tổng quan nhân vật</h2>
+        <p class="text-[#94a3b8] leading-relaxed text-justify">{{ guide.character_overview }}</p>
+      </section>
+
+      <!-- Echo Sets -->
+      <section id="echo-sets" class="mb-0 pt-16">
+        <h2 class="text-3xl font-bold text-[#38bdf8] mb-6">Bộ Echo</h2>
+        <div class="grid gap-6">
+          @for (set of guide.echoSets; track $index) {
+            <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6">
+              <h3 class="text-[#60a5fa] text-xl font-bold mb-1">{{ set.name }}</h3>
+              <p class="text-[#94a3b8] mb-3">Điều kiện: {{ set.condition }}</p>
+              <div class="space-y-3">
+                @if (set.set_3_desc) {
+                  <div class="flex items-start gap-3">
+                    <span class="bg-[#38bdf8] text-white text-xs px-2 py-1 rounded whitespace-nowrap">3-Mảnh</span>
+                    <span class="text-white">{{ set.set_3_desc }}</span>
+                  </div>
+                } @else {
+                  @if (set.set_2_desc) {
+                    <div class="flex items-start gap-3">
+                      <span class="bg-[#38bdf8] text-white text-xs px-2 py-1 rounded whitespace-nowrap">2-Mảnh</span>
+                      <span class="text-white">{{ set.set_2_desc }}</span>
+                    </div>
+                  }
+                  <div class="flex items-start gap-3">
+                    <span class="bg-[#60a5fa] text-white text-xs px-2 py-1 rounded whitespace-nowrap">5-Mảnh</span>
+                    <span class="text-white">{{ set.set_5_desc }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Main Stats -->
+      <section id="main-stats" class="mb-0 pt-16">
+        <h2 class="text-3xl font-bold text-[#38bdf8] mb-6">Chỉ số chính</h2>
+        <div class="bg-[#1f293780] border border-[#374151] rounded-[20px] p-6 space-y-3">
+          @for (stat of guide.mainStats; track $index) {
+            <div>
+              <h3 class="text-[#60a5fa] text-xl font-extrabold">Cost {{ (4 - $index) === 2 ? 1 : 4 - $index }}</h3>
+              <p class="text-white">{{ stat.description }}</p>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Sub Stats -->
+      <section id="sub-stats" class="mb-0 pt-16">
+        <h2 class="text-3xl font-bold text-[#38bdf8] mb-6">Dòng phụ ưu tiên</h2>
+        <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6">
+          <div class="flex items-center justify-center gap-2 flex-wrap">
+            @for (stat of guide.sub_stat_priority; track $index) {
+              <span class="text-white font-medium">{{ stat }}</span>
+              @if ($index < guide.sub_stat_priority.length - 1) { <span>></span> }
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Target Stats -->
+      <section id="target-stats" class="mb-0 pt-16">
+        <h2 class="text-3xl font-bold text-[#38bdf8] mb-6">Chỉ số hướng tới</h2>
+        <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+              @for (t of guide.targetStat.target; track $index) {
+                <div class="flex justify-between items-center p-4 bg-[#374151] rounded-lg">
+                  <span class="text-[#94a3b8]">{{ t.name }}</span>
+                  <span class="text-[#38bdf8] font-bold">{{ t.value }}</span>
+                </div>
+              }
+            </div>
+            <div class="bg-[#60a5fa]/10 border border-[#60a5fa]/30 rounded-lg p-4">
+              <h3 class="text-[#60a5fa] font-semibold mb-2">Note</h3>
+              <p class="text-[#94a3b8] text-sm text-justify">{{ guide.targetStat.note }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Weapons -->
+      <section id="weapons" class="mb-0 pt-16">
+        <h2 class="text-3xl font-bold text-[#38bdf8] mb-6">Vũ khí đề xuất</h2>
+        <div class="bg-[#1f293780] border border-[#374151] rounded-lg overflow-hidden">
+          <div class="grid grid-cols-12 gap-4 p-4 border-b border-[#374151] bg-[#0d0d0d]">
+            <div class="col-span-4 text-[#94a3b8] font-semibold">Vũ khí</div>
+            <div class="col-span-2 text-[#94a3b8] font-semibold text-center">Hiệu xuất</div>
+            <div class="col-span-6 max-[710px]:hidden text-[#94a3b8] font-semibold">Notes</div>
+          </div>
+          @for (weapon of guide.weapons; track weapon.id) {
+            <div class="grid grid-cols-12 gap-4 p-4 hover:bg-[#374151]/30 transition-colors border-b border-[#374151]">
+              <div class="col-span-4 flex items-center gap-3">
+                <div class="w-16 h-16 bg-white/20 rounded-md flex items-center justify-center flex-shrink-0">
+                  @if (weapon.icon) {
+                    <img [src]="weapon.icon" [alt]="weapon.name" width="46" height="46" class="w-16 h-16 object-contain" />
+                  }
+                </div>
+                <div>
+                  <div class="font-semibold text-white">{{ weapon.name }}</div>
+                  <div class="text-xs text-[#94a3b8]">Độ hiếm: <span class="text-[#38bdf8]">{{ weapon.rarity }}</span></div>
+                </div>
+              </div>
+              <div class="col-span-2 flex items-center justify-center">
+                <div class="text-center">
+                  <div class="text-lg font-bold text-[#38bdf8]">{{ weapon.effective }}%</div>
+                  <div class="text-xs text-[#94a3b8]">Độ hiệu quả</div>
+                </div>
+              </div>
+              <div class="col-span-6 max-[710px]:hidden flex items-center">
+                <p class="text-[#94a3b8] text-sm text-justify">{{ weapon.note }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Team Comps -->
+      <section id="team-comps" class="mb-0 pt-16">
+        <h2 class="text-3xl font-bold text-[#38bdf8] mb-6">Đội hình</h2>
+        <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6 mb-6">
+          <pre class="text-[#94a3b8] whitespace-pre-wrap font-sans text-justify">{{ guide.team_composition.note }}</pre>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          @for (team of guide.team_composition.team_comb; track $index) {
+            <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6">
+              <h3 class="text-[#60a5fa] text-lg font-bold mb-4">Team {{ $index + 1 }}</h3>
+              <div class="flex flex-wrap gap-4 justify-center">
+                @if (team.slot_one?.icon) { <img [src]="team.slot_one!.icon" alt="slot1" width="64" height="64" /> }
+                @if (team.slot_two?.icon) { <img [src]="team.slot_two!.icon" alt="slot2" width="64" height="64" /> }
+                @if (team.slot_three?.icon) { <img [src]="team.slot_three!.icon" alt="slot3" width="64" height="64" /> }
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Skills -->
+      <section id="skills" class="mb-0 pt-16">
+        <h2 class="text-3xl font-bold text-[#38bdf8] mb-6">Kĩ năng ưu tiên</h2>
+        <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6">
+          <div class="flex items-center justify-center gap-2 flex-wrap">
+            @for (skill of guide.skill_priority; track $index) {
+              <span class="text-white font-medium">{{ skill }}</span>
+              @if ($index < guide.skill_priority.length - 1) { <span>></span> }
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Rotation -->
+      <section id="rotation" class="mb-0 pt-16">
+        <h2 class="text-3xl font-bold text-[#38bdf8] mb-6">Combat Rotation</h2>
+        <div class="space-y-6">
+          <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6">
+            <h3 class="text-[#60a5fa] font-bold mb-4">Rotation Cơ Bản</h3>
+            <div class="space-y-3">
+              @for (step of guide.combatRotation; track $index) {
+                <div class="p-4 bg-[#374151] rounded-lg">
+                  <div class="flex items-start gap-3 mb-4">
+                    <span class="bg-[#60a5fa] text-white text-xs px-2 py-1 rounded min-w-[2rem] text-center">{{ $index + 1 }}</span>
+                    <span class="text-white">{{ step.description }}</span>
+                  </div>
+                  @if (step.link && embedUrl(step.link)) {
+                    <div class="flex justify-center">
+                      <iframe [src]="embedUrl(step.link)!" width="70%" height="300" allowfullscreen class="rounded-[20px] max-[800px]:w-full max-[590px]:h-[200px]"></iframe>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+          <div class="bg-[#60a5fa]/10 border border-[#60a5fa]/30 rounded-xl p-6">
+            <h3 class="text-[#60a5fa] font-bold mb-2">Thông tin quan trọng</h3>
+            @if (guide.important_note) {
+              <div class="text-[#94a3b8] whitespace-pre-wrap text-justify" [innerHTML]="guide.important_note"></div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Advanced -->
+      <p class="text-[#38bdf8] rounded-xl p-4 bg-[#1f293780] border border-[#374151] w-fit mx-auto mt-16 font-bold px-20">NÂNG CAO</p>
+      <section id="advanced" class="mb-0 pt-16">
+        <h2 class="text-3xl font-bold text-[#38bdf8] mb-6">Kĩ năng nâng cao</h2>
+        @for (tech of guide.advanced_tech; track $index) {
+          <div class="mb-4">
+            <h3 class="text-[#60a5fa] text-lg">{{ tech.title }}</h3>
+            <p class="text-[#94a3b8] text-justify whitespace-pre-line">{{ tech.description }}</p>
+            <div class="flex flex-col gap-4 items-center mt-4">
+              @for (link of linkArray(tech.link); track link) {
+                @if (embedUrl(link)) {
+                  <iframe [src]="embedUrl(link)!" width="70%" height="300" allowfullscreen class="rounded-[20px] max-[800px]:w-full max-[590px]:h-[200px]"></iframe>
+                }
+              }
+            </div>
+          </div>
+        }
+      </section>
+
+      <!-- Summary -->
+      <section id="summary" class="mb-0 pt-16">
+        <h2 class="text-3xl font-bold text-[#38bdf8] mb-6">Tổng kết</h2>
+        <div class="bg-[#60a5fa]/10 border border-[#60a5fa]/30 rounded-xl p-6 mb-6">
+          <p class="text-[#94a3b8] leading-relaxed text-justify whitespace-pre-line" [innerHTML]="highlightHtml(guide.summary.description || '')"></p>
+          @if (guide.summary.link && embedUrl(guide.summary.link)) {
+            <div class="flex justify-center mt-4">
+              <iframe [src]="embedUrl(guide.summary.link)!" width="70%" height="300" allowfullscreen class="rounded-[20px] max-[800px]:w-full max-[590px]:h-[200px]"></iframe>
+            </div>
+          }
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6">
+            <h3 class="text-[#38bdf8] font-bold mb-4">Mạnh</h3>
+            <ul class="space-y-3">
+              @for (pro of guide.prosCons.pros; track $index) {
+                <li class="flex items-start gap-3"><span class="text-[#38bdf8] text-xl">+</span><span class="text-white">{{ pro }}</span></li>
+              }
+            </ul>
+          </div>
+          <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6">
+            <h3 class="text-[#94a3b8] font-bold mb-4">Yếu</h3>
+            <ul class="space-y-3">
+              @for (con of guide.prosCons.cons; track $index) {
+                <li class="flex items-start gap-3"><span class="text-[#94a3b8] text-xl">-</span><span class="text-white">{{ con }}</span></li>
+              }
+            </ul>
+          </div>
+        </div>
+        <div class="bg-[#38bdf8]/10 border border-[#38bdf8]/30 rounded-xl p-6">
+          <h3 class="text-[#38bdf8] font-bold mb-4">Kết luận</h3>
+          @if (guide.conclusion) {
+            <div class="text-white text-lg leading-relaxed text-justify whitespace-pre-line" [innerHTML]="guide.conclusion"></div>
+          }
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Right nav -->
+  @if (showNav()) {
+    <nav class="fixed right-[7%] top-[115px] w-[225px] border-l border-[#374151] z-40 transition-transform duration-300"
+      [style.transform]="isMobileMenuOpen() ? 'translateX(0)' : ''"
+    >
+      <div class="p-1 space-y-1 overflow-y-auto">
+        @for (item of navItems; track item.id) {
+          <button
+            (click)="scrollTo(item.id, scrollContainer)"
+            [class]="'w-full text-left px-3 py-1 rounded-lg text-sm font-medium transition-all capitalize ' + (activeSection() === item.id ? 'text-[#38bdf8]' : 'text-[#94a3b8] hover:text-white')"
+          >{{ item.label }}</button>
+        }
+      </div>
+    </nav>
+  }
+
+  @if (isMobileMenuOpen()) {
+    <div class="fixed inset-0 bg-black/50 z-30 lg:hidden" (click)="isMobileMenuOpen.set(false)"></div>
+  }
+</div>

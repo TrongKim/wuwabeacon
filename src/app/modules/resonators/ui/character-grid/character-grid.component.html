@@ -1,0 +1,36 @@
+<app-character-header (filterChange)="onFilterChange($event)"></app-character-header>
+
+<div class="grid grid-cols-2 max-[475px]:grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+  @for (character of filtered(); track character.id) {
+    <a
+      [routerLink]="['/characters', character.id]"
+      class="bg-slate-800/50 rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] border border-[#374151]"
+    >
+      <div class="relative h-48 sm:h-56 md:h-64">
+        <!-- Element icon -->
+        @if (elementIcon(character.element)) {
+          <div class="absolute top-2 left-2 z-10 h-6 w-6">
+            <img [src]="elementIcon(character.element)" fill alt="element" class="object-contain w-full h-full" />
+          </div>
+        }
+        <!-- Weapon icon -->
+        @if (weaponIcon(character.weapon_type)) {
+          <div class="absolute top-2 right-2 z-10 h-8 w-8">
+            <img [src]="weaponIcon(character.weapon_type)" alt="weapon" class="object-contain w-full h-full" />
+          </div>
+        }
+        <img [src]="character.card" [alt]="character.name" class="w-full h-full object-contain" />
+        <div [class]="'absolute bottom-0 left-0 right-0 p-4 ' + gradientClass(character.rank)">
+          <h3 class="text-center font-bold">{{ character.name }}</h3>
+          <div class="flex justify-center mt-1">
+            @for (s of stars(character.rank); track s) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 15 15" class="h-5 w-5 fill-current text-yellow-300">
+                <path fill="currentColor" d="M7.5 0C6.429 4.286 5.357 6.429 0 7.5c5.357 1.071 6.429 3.214 7.5 7.5 1.071-4.286 2.143-6.429 7.5-7.5C9.643 6.429 8.571 4.286 7.5 0Z"/>
+              </svg>
+            }
+          </div>
+        </div>
+      </div>
+    </a>
+  }
+</div>

@@ -1,0 +1,27 @@
+<app-weapon-header (filterChange)="onFilterChange($event)"></app-weapon-header>
+
+<div class="flex flex-wrap items-center justify-center gap-4">
+  @for (weapon of filtered(); track weapon.id) {
+    <a [routerLink]="['/weapons', weapon.id]" class="bg-slate-800/50 rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] border border-[#374151] w-[112px] h-[157px]">
+      <div class="relative w-full h-full">
+        @if (weaponIcon(weapon.type)) {
+          <div class="absolute top-2 right-2 z-10 h-8 w-8">
+            <img [src]="weaponIcon(weapon.type)" alt="type" class="object-contain w-full h-full" />
+          </div>
+        }
+        <img [src]="weaponImage(weapon.icon) || '/placeholder.svg'" [alt]="weapon.name" class="object-contain relative z-10 w-full h-full" />
+        <div [class]="'absolute bottom-0 left-0 right-0 z-0 h-[40%] ' + gradient(weapon.rarity)"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-4 pt-6 pb-2 z-10">
+          <h3 class="text-center text-[14px] font-bold truncate max-h-[48px]">{{ weapon.name }}</h3>
+          <div class="flex justify-center">
+            @for (s of stars(weapon.rarity); track s) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 15 15" class="h-5 w-5 fill-current text-yellow-300">
+                <path fill="currentColor" d="M7.5 0C6.429 4.286 5.357 6.429 0 7.5c5.357 1.071 6.429 3.214 7.5 7.5 1.071-4.286 2.143-6.429 7.5-7.5C9.643 6.429 8.571 4.286 7.5 0Z"/>
+              </svg>
+            }
+          </div>
+        </div>
+      </div>
+    </a>
+  }
+</div>

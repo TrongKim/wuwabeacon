@@ -1,0 +1,107 @@
+<div class="min-h-screen bg-[#0d0d0d] text-white">
+  <!-- Header -->
+  <div class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-[#1f293780] to-[#0d0d0d]"></div>
+    <div class="relative max-w-6xl mx-auto px-6 py-16">
+      <a routerLink="/" class="inline-flex items-center gap-2 text-[#94a3b8] hover:text-[#38bdf8] transition-colors mb-8">
+        ← Back to Guide
+      </a>
+      <div class="text-center">
+        <h1 class="text-5xl md:text-7xl font-bold text-[#38bdf8] mb-6">Tri Ân</h1>
+        <p class="text-xl text-[#94a3b8] max-w-3xl mx-auto leading-relaxed">
+          Tôn vinh những đóng góp tận tâm của những người đã chung tay tạo nên website wiki này.
+        </p>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
+        <div class="text-center p-4 bg-[#1f293780] rounded-lg border border-[#374151]">
+          <div class="text-2xl font-bold text-[#38bdf8]">{{ contributors.length }}</div>
+          <div class="text-[#94a3b8] text-sm">Thành Viên</div>
+        </div>
+        <div class="text-center p-4 bg-[#1f293780] rounded-lg border border-[#374151]">
+          <div class="text-2xl font-bold text-[#60a5fa]">{{ departments.length }}</div>
+          <div class="text-[#94a3b8] text-sm">Bộ phận</div>
+        </div>
+        <div class="text-center p-4 bg-[#1f293780] rounded-lg border border-[#374151]">
+          <div class="text-2xl font-bold text-[#38bdf8]">1.5</div>
+          <div class="text-[#94a3b8] text-sm">Tháng</div>
+        </div>
+        <div class="text-center p-4 bg-[#1f293780] rounded-lg border border-[#374151]">
+          <div class="text-2xl font-bold text-[#60a5fa]">∞</div>
+          <div class="text-[#94a3b8] text-sm">Cống Hiến</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-6 py-8">
+    <!-- Departments -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-[#38bdf8] mb-6">Các Bộ Phận</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        @for (dept of departments; track dept.name) {
+          <button
+            (click)="toggleDept(dept.name)"
+            [class]="'p-4 rounded-lg border transition-all text-left ' + (selectedDepartment() === dept.name ? 'border-[#60a5fa] bg-[#60a5fa]/10' : 'border-[#374151] bg-[#1f293780] hover:border-[#60a5fa]/50')"
+          >
+            <div class="flex items-center gap-3 mb-2">
+              <div [class]="'w-10 h-10 rounded-lg bg-gradient-to-br ' + dept.color + ' flex items-center justify-center'">
+                <span class="text-white text-xs font-bold">{{ dept.name[0] }}</span>
+              </div>
+              <h3 class="font-semibold text-white">{{ dept.name }}</h3>
+            </div>
+            <p class="text-[#94a3b8] text-sm">{{ dept.description }}</p>
+            <div class="mt-2">
+              <span class="bg-[#374151] text-[#94a3b8] text-xs px-2 py-1 rounded">{{ countByDept(dept.name) }} members</span>
+            </div>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Contributors -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-[#38bdf8]">
+          {{ selectedDepartment() ? selectedDepartment() + ' Team' : 'Tất Cả Thành Viên' }}
+        </h2>
+        @if (selectedDepartment()) {
+          <button (click)="selectedDepartment.set(null)" class="text-[#94a3b8] hover:text-[#38bdf8] transition-colors">Show All</button>
+        }
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        @for (c of filteredContributors; track c.id) {
+          <div class="bg-[#1f293780] border border-[#374151] rounded-xl overflow-hidden hover:border-[#60a5fa]/50 transition-all p-6">
+            <div class="text-center mb-4">
+              <div class="relative w-20 h-20 mx-auto mb-3">
+                <img [src]="c.photo || '/placeholder.svg'" [alt]="c.name" width="80" height="80" class="rounded-full object-cover border-2 border-[#374151] w-[80px] h-[80px]" />
+                <div [class]="'absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-br ' + getDeptColor(c.department) + ' flex items-center justify-center'">
+                  <span class="text-white text-[8px] font-bold">{{ c.department[0] }}</span>
+                </div>
+              </div>
+              <h3 class="font-semibold text-white text-lg">{{ c.name }}</h3>
+              <p class="text-[#60a5fa] text-sm font-medium">{{ c.role }}</p>
+            </div>
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center justify-between">
+                <span class="text-[#94a3b8] text-xs">Bộ phận</span>
+                <span [class]="'text-xs text-white px-2 py-0.5 rounded bg-gradient-to-r ' + getDeptColor(c.department)">{{ c.department }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-[#94a3b8] text-xs">Server</span>
+                <a [href]="c.linkDiscord" target="_blank" rel="noopener" class="text-xs text-[#38bdf8]">{{ c.server }}</a>
+              </div>
+            </div>
+            <div>
+              <span class="text-[#94a3b8] text-xs">Nhiệm Vụ</span>
+              <div class="flex flex-wrap gap-1 mt-1">
+                @for (contrib of c.contributions; track contrib) {
+                  <span class="bg-[#374151] text-[#94a3b8] text-xs px-2 py-0.5 rounded">{{ contrib }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

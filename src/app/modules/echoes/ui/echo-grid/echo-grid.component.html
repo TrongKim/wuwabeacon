@@ -1,0 +1,14 @@
+<app-echo-header [echoSets]="echoSets" (filterChange)="onFilterChange($event)"></app-echo-header>
+
+<div class="flex flex-wrap items-center justify-center gap-4">
+  @for (echo of filtered(); track echo.id) {
+    <a [routerLink]="['/echos', echo.id]" class="bg-slate-800/50 rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] border border-[#374151] w-[112px] h-[140px]">
+      <div class="relative h-full w-full">
+        <img [src]="iconUrl(echo.icon)" [alt]="echo.name" class="w-full h-full object-contain" />
+        <div class="absolute bottom-0 left-0 right-0 p-4">
+          <h3 class="text-center text-[14px] font-bold truncate max-h-[48px]">{{ echo.name }}</h3>
+        </div>
+      </div>
+    </a>
+  }
+</div>

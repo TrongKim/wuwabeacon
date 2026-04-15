@@ -1,0 +1,20 @@
+.card-img-wrapper {
+  width: fit-content;
+
+  @media (max-width: 340px) {
+    width: 100%;
+  }
+
+  @media (max-width: 600px) {
+    display: none;
+  }
+
+  img {
+    height: auto;
+    margin-top: -2.5rem;
+
+    @media (max-width: 340px) {
+      width: 100%;
+    }
+  }
+}

@@ -1,0 +1,81 @@
+@if (isOpen) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="closePopup.emit()">
+    <div class="bg-[#1f2937] border border-[#334d6c] text-white rounded-xl max-w-[600px] w-full max-h-[80vh] flex flex-col overflow-hidden" (click)="$event.stopPropagation()">
+      <div class="p-4 border-b border-[#1a3759] bg-[#1f2937c7]">
+        <h2 class="text-2xl font-bold text-center">Filter</h2>
+      </div>
+      <div class="p-5 overflow-y-auto space-y-6">
+        <!-- Rarity -->
+        <div>
+          <div class="flex justify-between mb-2">
+            <span class="font-semibold">Rarity</span>
+            <button (click)="clear('rarity')" class="text-xs text-slate-400 hover:text-white">Clear</button>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <button
+              (click)="toggle('rarity', { code: ECharacterRare.FOUR_STAR, name: '4' })"
+              [class]="'px-4 py-2 rounded border text-sm ' + (isActive('rarity', ECharacterRare.FOUR_STAR) ? 'bg-[#4d647e] border-[#4d647e]' : 'bg-[#334d6c] border-[#334d6c]')"
+            >
+              <span class="text-yellow-300">4★</span>
+            </button>
+            <button
+              (click)="toggle('rarity', { code: ECharacterRare.FIVE_STAR, name: '5' })"
+              [class]="'px-4 py-2 rounded border text-sm ' + (isActive('rarity', ECharacterRare.FIVE_STAR) ? 'bg-[#4d647e] border-[#4d647e]' : 'bg-[#334d6c] border-[#334d6c]')"
+            >
+              <span class="text-yellow-300">5★</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Weapon Type -->
+        <div>
+          <div class="flex justify-between mb-2">
+            <span class="font-semibold">Weapon Type</span>
+            <button (click)="clear('type')" class="text-xs text-slate-400 hover:text-white">Clear</button>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            @for (wp of [
+              { code: ECharacterWeaponType.SWORD, icon: '/weapons_icon/sword.png' },
+              { code: ECharacterWeaponType.BROAD_BLADE, icon: '/weapons_icon/broadblade.png' },
+              { code: ECharacterWeaponType.PISTOLS, icon: '/weapons_icon/pistols.png' },
+              { code: ECharacterWeaponType.RECTIFIER, icon: '/weapons_icon/rectifier.png' },
+              { code: ECharacterWeaponType.GAUNTLETS, icon: '/weapons_icon/gauntlets.png' }
+            ]; track wp.code) {
+              <button
+                (click)="toggle('type', { code: wp.code, name: wp.code })"
+                [class]="'w-[60px] h-[40px] flex items-center justify-center rounded border ' + (isActive('type', wp.code) ? 'bg-[#4d647e] border-[#4d647e]' : 'bg-[#334d6c] border-[#334d6c]')"
+              >
+                <img [src]="wp.icon" width="24" height="24" alt="weapon" />
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Element -->
+        <div>
+          <div class="flex justify-between mb-2">
+            <span class="font-semibold">Element</span>
+            <button (click)="clear('element')" class="text-xs text-slate-400 hover:text-white">Clear</button>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            @for (el of [
+              { code: ECharacterElementType.AERO, icon: '/elements_icon/Aero.png' },
+              { code: ECharacterElementType.ELECTRO, icon: '/elements_icon/Electro.png' },
+              { code: ECharacterElementType.FUSION, icon: '/elements_icon/Fusion.png' },
+              { code: ECharacterElementType.GLACIO, icon: '/elements_icon/Glacio.png' },
+              { code: ECharacterElementType.HAVOC, icon: '/elements_icon/Havoc.png' },
+              { code: ECharacterElementType.SPECTRO, icon: '/elements_icon/Spectro.png' }
+            ]; track el.code) {
+              <button
+                (click)="toggle('element', { code: el.code, name: el.code })"
+                [class]="'w-[60px] h-[40px] flex items-center justify-center rounded border ' + (isActive('element', el.code) ? 'bg-[#4d647e] border-[#4d647e]' : 'bg-[#334d6c] border-[#334d6c]')"
+              >
+                <img [src]="el.icon" width="24" height="24" alt="element" class="scale-[0.9]" />
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

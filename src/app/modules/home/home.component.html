@@ -1,0 +1,60 @@
+<div class="space-y-8 pb-10">
+  <!-- Hero Banner -->
+  <div class="relative h-64 md:h-80 rounded-[20px] overflow-hidden mb-6">
+    <img src="/banner-guide.jpg" alt="Resonator Hero Banner" class="w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-gradient-to-r from-[#0f172a]/80 to-transparent flex flex-col justify-center pl-30 max-[900px]:pl-0 max-[900px]:items-center">
+      <h1 class="text-3xl md:text-5xl font-bold mb-2">Wuthering Beacon</h1>
+      <p class="text-slate-300 max-w-md text-[15px] max-[900px]:text-center">The truth is a beacon in the maelstrom of my life.</p>
+    </div>
+  </div>
+
+  <div class="flex items-stretch gap-6 max-[768px]:flex-col mb-6">
+    <!-- Guides list -->
+    <div class="flex-[4]">
+      <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6 flex flex-col">
+        <h2 class="text-[25px] font-bold mb-4">Thông tin mới</h2>
+        <div class="space-y-4 flex-1 overflow-auto max-h-[368px] pr-2 max-[550px]:flex max-[550px]:flex-wrap">
+          @if (loading()) {
+            <p class="text-slate-400">Đang tải...</p>
+          }
+          @for (guide of guides(); track guide.id) {
+            <a [routerLink]="['/guide', guide.id]">
+              <div class="flex gap-4 p-2 rounded-lg hover:bg-[#1f293796] cursor-pointer transition-colors max-[550px]:flex-col max-[550px]:items-center max-[550px]:w-full">
+                <div class="relative w-36 h-24 rounded-md overflow-hidden flex-shrink-0 max-[550px]:w-full max-[550px]:h-26">
+                  <img [src]="guide.thumnail || '/placeholder.svg'" alt="guide" class="w-full h-full object-contain" />
+                </div>
+                <div class="flex-1">
+                  <h2 class="font-medium max-[550px]:text-center">{{ guide.title }}</h2>
+                  <div class="flex justify-start gap-2 items-center mt-2 max-[550px]:justify-center">
+                    @for (tag of guide.tags.slice(0, 2); track tag) {
+                      <span class="text-[10px] border border-[#374151] rounded px-1 py-0.5">{{ tag }}</span>
+                    }
+                  </div>
+                </div>
+                <div class="mr-auto flex items-end max-[550px]:mx-auto">
+                  <span class="text-xs text-slate-400 mb-[15px]">{{ formatDate(guide.created_at) }}</span>
+                </div>
+              </div>
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Updates -->
+    <div class="flex-[2] h-auto">
+      <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6 flex flex-col h-full">
+        <h2 class="text-[25px] font-bold mb-4">Cập nhật</h2>
+        <div class="text-[16px] w-full h-full flex items-center justify-center flex-1">
+          <p>Chưa có cập nhật</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter + Guide Gallery -->
+  <app-filter-guide-container
+    [resonators]="resonators()"
+    [guideMap]="guideMap()"
+  ></app-filter-guide-container>
+</div>

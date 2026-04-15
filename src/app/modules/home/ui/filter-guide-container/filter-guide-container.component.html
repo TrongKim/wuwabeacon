@@ -1,0 +1,76 @@
+<div>
+  <!-- Search -->
+  <div class="mb-6 relative w-full h-[200px] flex items-center">
+    <div class="absolute inset-0 -z-10 overflow-hidden rounded-[20px] flex items-center">
+      <div class="w-full bg-cover bg-center h-[635px] mt-[100px]" style="background-image: url('/search-bg.jpg')"></div>
+      <div class="bg-[#00000078] absolute z-10 top-0 left-0 w-full h-full"></div>
+    </div>
+    <div class="relative p-4 w-full flex justify-center">
+      <div class="relative flex items-center bg-black/90 rounded-full w-[60%] px-2 pr-4 max-[600px]:w-full">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input
+          type="text"
+          placeholder="Tìm kiếm..."
+          (input)="onSearch($event)"
+          class="flex-1 py-3 pl-2 pr-1 text-white bg-transparent border-none focus:outline-none"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex flex-col md:flex-row justify-between gap-[10px] mb-4">
+    <!-- Element filter -->
+    <div class="w-fit bg-[#1f293780] border border-[#374151] p-[5px] rounded-[20px] overflow-hidden max-[1020px]:flex-1 max-[1020px]:w-full">
+      <div class="flex items-center flex-wrap justify-center">
+        @for (el of elements; track el.code) {
+          <button
+            (click)="selectElement(el.code)"
+            [class]="'flex w-[70px] flex-col items-center justify-center gap-2 p-2 cursor-pointer rounded-[16px] ' + (filterByElement() === el.code ? 'bg-[#1f293796]' : '')"
+          >
+            <div class="w-10 h-10 rounded-full flex items-center justify-center">
+              <img [src]="el.icon" [alt]="el.name" width="35" height="35" [class]="getElementClass(el.code)" />
+            </div>
+            <span class="text-xs text-center">{{ el.name }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Weapon filter -->
+    <div class="w-fit bg-[#1f293780] border border-[#374151] p-[5px] rounded-[20px] overflow-hidden max-[1020px]:flex-1 max-[1020px]:w-full">
+      <div class="flex items-center flex-wrap justify-center">
+        <button
+          (click)="selectWeapon('Misc')"
+          [class]="'flex w-[70px] flex-col items-center justify-center gap-2 p-2 cursor-pointer rounded-[16px] ' + (filterByWeapon() === 'Misc' ? 'bg-[#1f293796]' : '')"
+        >
+          <div class="w-10 h-10 flex items-center justify-center">
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 9L12 4L2 9L12 14L22 9ZM22 9V15M19 10.5V16.5L12 20L5 16.5V10.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="text-xs text-center">Misc</span>
+        </button>
+        @for (wp of weapons; track wp.code) {
+          <button
+            (click)="selectWeapon(wp.code)"
+            [class]="'flex w-[70px] flex-col items-center justify-center gap-2 p-2 cursor-pointer rounded-[16px] ' + (filterByWeapon() === wp.code ? 'bg-[#1f293796]' : '')"
+          >
+            <div class="w-10 h-10 flex items-center justify-center">
+              <img [src]="wp.icon" [alt]="wp.name" width="42" height="56" class="h-[56px] object-contain" />
+            </div>
+            <span class="text-xs text-center">{{ wp.name }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Gallery -->
+  <app-character-guide-gallery
+    [resonators]="filteredResonators()"
+    [guideMap]="guideMap"
+  ></app-character-guide-gallery>
+</div>

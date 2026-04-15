@@ -1,0 +1,148 @@
+<div class="flex items-start w-full h-full fixed top-0 left-0 z-[1000]">
+
+  <!-- Sidebar: NOT fixed, part of flex layout -->
+  <aside
+    [style.width]="showSidebar() ? '256px' : '52px'"
+    [style.position]="'relative'"
+    class="h-full bg-[#1f293780] border-[#374151] border-r flex flex-col transition-[width] duration-300 overflow-hidden shrink-0"
+  >
+
+    <!-- Logo -->
+    <div class="p-2 flex items-center h-fit pt-[10px] pb-4">
+      <a routerLink="/" [class]="'font-bold transition-opacity duration-300 absolute flex items-center '
+        + (showSidebar() ? 'opacity-100 visible' : 'opacity-0 invisible')">
+        <div class="font-bold transition-opacity duration-300 absolute flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 612 792" width="32" height="32" class="scale-[1.3]">
+            <path fill="#fff" stroke-width="0" d="m498.71,155.16l28.74-33.1v-3.48l-1.32-.77-143.86,99.46-19.26-11.25s7.38-27.44,7.38-30.44.44-33.44.44-33.44c0,0-29.27,13.21-52.69,49.02,0,0-84.39-5.42-141.68,56.13-57.29,61.55-53.23,127.74-53.23,127.74,0,0-.39,61.94,24.19,90l1.35-.87s-22.65-77.71,23.42-137.71c0,0-20.71,70.45,25.74,120.77,46.45,50.32,100.65,49.55,132.77,64.45,32.13,14.9,62.9,40.45,78.29,92.03l2.1-.16s8.65-47.35-5.87-82.97c-14.52-35.61-29.42-50.71-65.81-72.39l-46.58-22.77s-59.1-24.26-61.61-89.87c0,0-2.13-35.03,29.81-67.26,0,0-18.19,49.65,15.29,81.39s68.13,21.16,68.13,21.16l6.84.13,73.42,32.39,6.26,4.87,5.81,6.48,6.48,7.16,4.74,4.06,5.52,2.03,12.48-.1,4-.42,5.52-.81,7.87-1.16,4.74-1.74,5.19-4.74,15.74-28.63,1.03-3.11.13-10.58s-22.84-33.77-41.71-55.74c-18.87-21.97-40.84-55.74-40.84-55.74l-10.94-16.65,38.52-43.45,43.45-49.94Z"/>
+            <path fill="#fff" stroke-width="0" d="m171.61,500.84s8.71,36.19,38.13,55.35,25.55,19.55,80.71,30,86.13,52.65,86.13,52.65l1.35,2.13h1.55s.39-30.77-21.1-54.97-42.58-37.74-96.77-46.26-90-38.9-90-38.9Z"/>
+          </svg>
+          WuwaBeacon
+        </div>
+      </a>
+      <a routerLink="/" [class]="'scale-[1] ' + (showSidebar() ? 'opacity-0' : 'opacity-100')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 612 792" width="32" height="32">
+          <path fill="#fff" stroke-width="0" d="m498.71,155.16l28.74-33.1v-3.48l-1.32-.77-143.86,99.46-19.26-11.25s7.38-27.44,7.38-30.44.44-33.44.44-33.44c0,0-29.27,13.21-52.69,49.02,0,0-84.39-5.42-141.68,56.13-57.29,61.55-53.23,127.74-53.23,127.74,0,0-.39,61.94,24.19,90l1.35-.87s-22.65-77.71,23.42-137.71c0,0-20.71,70.45,25.74,120.77,46.45,50.32,100.65,49.55,132.77,64.45,32.13,14.9,62.9,40.45,78.29,92.03l2.1-.16s8.65-47.35-5.87-82.97c-14.52-35.61-29.42-50.71-65.81-72.39l-46.58-22.77s-59.1-24.26-61.61-89.87c0,0-2.13-35.03,29.81-67.26,0,0-18.19,49.65,15.29,81.39s68.13,21.16,68.13,21.16l6.84.13,73.42,32.39,6.26,4.87,5.81,6.48,6.48,7.16,4.74,4.06,5.52,2.03,12.48-.1,4-.42,5.52-.81,7.87-1.16,4.74-1.74,5.19-4.74,15.74-28.63,1.03-3.11.13-10.58s-22.84-33.77-41.71-55.74c-18.87-21.97-40.84-55.74-40.84-55.74l-10.94-16.65,38.52-43.45,43.45-49.94Z"/>
+          <path fill="#fff" stroke-width="0" d="m171.61,500.84s8.71,36.19,38.13,55.35,25.55,19.55,80.71,30,86.13,52.65,86.13,52.65l1.35,2.13h1.55s.39-30.77-21.1-54.97-42.58-37.74-96.77-46.26-90-38.9-90-38.9Z"/>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1 p-2">
+      <ul class="space-y-2">
+        <li>
+          <a routerLink="/" [class]="'flex items-center p-2 rounded-md text-slate-300 transition-colors '
+            + (isActive('/') ? 'bg-slate-700 text-white' : 'hover:bg-slate-700 hover:text-white')">
+            <div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 16 16" fill="none" class="w-[18px] h-[18px]">
+                <path d="M1 6V15H6V11C6 9.89543 6.89543 9 8 9C9.10457 9 10 9.89543 10 11V15H15V6L8 0L1 6Z" fill="#fff"/>
+              </svg>
+            </div>
+            <span [class]="'ml-3 transition-opacity duration-250 whitespace-nowrap overflow-hidden '
+              + (showSidebar() ? 'opacity-100' : 'opacity-0')">Home</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/characters" [class]="'flex items-center p-2 rounded-md hover:bg-slate-700 text-slate-300 hover:text-white transition-colors '
+            + (isActive('/characters') ? 'bg-slate-700 text-white' : '')">
+            <div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 512 512" class="fill-white">
+                <path d="M147.57,320.188c-0.078-0.797-0.328-1.531-0.328-2.328v-6.828c0-3.25,0.531-6.453,1.594-9.5c0,0,17.016-22.781,25.063-49.547c-8.813-18.594-16.813-41.734-16.813-64.672c0-5.328,0.391-10.484,0.938-15.563c-11.484-12.031-27-18.844-44.141-18.844c-35.391,0-64.109,28.875-64.109,73.75c0,35.906,29.219,74.875,29.219,74.875c1.031,3.047,1.563,6.25,1.563,9.5v6.828c0,8.516-4.969,16.266-12.719,19.813l-46.391,18.953C10.664,361.594,2.992,371.5,0.852,383.156l-0.797,10.203c-0.406,5.313,1.406,10.547,5.031,14.438c3.609,3.922,8.688,6.125,14.016,6.125H94.93l3.109-39.953l0.203-1.078c3.797-20.953,17.641-38.766,36.984-47.672L147.57,320.188z"/>
+                <path d="M511.148,383.156c-2.125-11.656-9.797-21.563-20.578-26.531l-46.422-18.953c-7.75-3.547-12.688-11.297-12.688-19.813v-6.828c0-3.25,0.516-6.453,1.578-9.5c0,0,29.203-38.969,29.203-74.875c0-44.875-28.703-73.75-64.156-73.75c-17.109,0-32.625,6.813-44.141,18.875c0.563,5.063,0.953,10.203,0.953,15.531c0,22.922-7.984,46.063-16.781,64.656c8.031,26.766,25.078,49.563,25.078,49.563c1.031,3.047,1.578,6.25,1.578,9.5v6.828c0,0.797-0.266,1.531-0.344,2.328l11.5,4.688c20.156,9.219,34,27.031,37.844,47.984l0.188,1.094l3.094,39.969h75.859c5.328,0,10.406-2.203,14-6.125c3.625-3.891,5.438-9.125,5.031-14.438L511.148,383.156z"/>
+                <path d="M367.867,344.609l-56.156-22.953c-9.375-4.313-15.359-13.688-15.359-23.969v-8.281c0-3.906,0.625-7.797,1.922-11.5c0,0,35.313-47.125,35.313-90.594c0-54.313-34.734-89.234-77.594-89.234c-42.844,0-77.594,34.922-77.594,89.234c0,43.469,35.344,90.594,35.344,90.594c1.266,3.703,1.922,7.594,1.922,11.5v8.281c0,10.281-6.031,19.656-15.391,23.969l-56.156,22.953c-13.047,5.984-22.344,17.984-24.906,32.109l-2.891,37.203h139.672h139.672l-2.859-37.203C390.211,362.594,380.914,350.594,367.867,344.609z"/>
+              </svg>
+            </div>
+            <span [class]="'ml-3 transition-opacity duration-250 whitespace-nowrap overflow-hidden '
+              + (showSidebar() ? 'opacity-100' : 'opacity-0')">Characters</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/weapons" [class]="'flex items-center p-2 rounded-md hover:bg-slate-700 text-slate-300 hover:text-white transition-colors '
+            + (isActive('/weapons') ? 'bg-slate-700 text-white' : '')">
+            <img src="/weapons_icon/broadblade.png" width="18" height="18" class="min-w-[20px] min-h-[20px] object-cover" alt="icon" />
+            <span [class]="'ml-3 transition-opacity duration-250 whitespace-nowrap overflow-hidden '
+              + (showSidebar() ? 'opacity-100' : 'opacity-0')">Weapons</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/echos" [class]="'flex items-center p-2 rounded-md hover:bg-slate-700 text-slate-300 hover:text-white transition-colors '
+            + (isActive('/echos') ? 'bg-slate-700 text-white' : '')">
+            <img src="/echo.png" width="18" height="18" class="min-w-[20px] min-h-[20px] object-cover" alt="icon" />
+            <span [class]="'ml-3 transition-opacity duration-250 whitespace-nowrap overflow-hidden '
+              + (showSidebar() ? 'opacity-100' : 'opacity-0')">Echos</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/tribute" [class]="'flex items-center p-2 rounded-md hover:bg-slate-700 text-slate-300 hover:text-white transition-colors '
+            + (isActive('/tribute') ? 'bg-slate-700 text-white' : '')">
+            <div class="w-[20px] h-[20px] min-w-[20px] flex items-center justify-center">
+              <img src="/trophy.svg" width="14" height="14" class="min-w-[15px] min-h-[15px] object-cover" alt="icon" />
+            </div>
+            <span [class]="'ml-3 transition-opacity duration-250 whitespace-nowrap overflow-hidden '
+              + (showSidebar() ? 'opacity-100' : 'opacity-0')">Tribute</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Discord -->
+    <a href="http://discord.gg/songgiohu" target="_blank" rel="noopener noreferrer">
+      <div class="p-4 w-full overflow-hidden cursor-pointer pointer-events-auto flex items-center gap-[12px]">
+        <div class="w-[20px] h-[20px]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none">
+            <path d="M18.59 5.88997C17.36 5.31997 16.05 4.89997 14.67 4.65997C14.5 4.95997 14.3 5.36997 14.17 5.69997C12.71 5.47997 11.26 5.47997 9.83001 5.69997C9.69001 5.36997 9.49001 4.95997 9.32001 4.65997C7.94001 4.89997 6.63001 5.31997 5.40001 5.88997C2.92001 9.62997 2.25001 13.28 2.58001 16.87C4.23001 18.1 5.82001 18.84 7.39001 19.33C7.78001 18.8 8.12001 18.23 8.42001 17.64C7.85001 17.43 7.31001 17.16 6.80001 16.85C6.94001 16.75 7.07001 16.64 7.20001 16.54C10.33 18 13.72 18 16.81 16.54C16.94 16.65 17.07 16.75 17.21 16.85C16.7 17.16 16.15 17.42 15.59 17.64C15.89 18.23 16.23 18.8 16.62 19.33C18.19 18.84 19.79 18.1 21.43 16.87C21.82 12.7 20.76 9.08997 18.61 5.88997H18.59Z" fill="#fff"/>
+          </svg>
+        </div>
+        <span [class]="'whitespace-nowrap duration-250 delay-75 capitalize text-slate-300 '
+          + (showSidebar() ? 'opacity-100' : 'opacity-0')">Vào discord đi</span>
+      </div>
+    </a>
+  </aside>
+
+  <!-- Main area: takes remaining width -->
+  <div class="w-full h-full flex flex-col">
+    <!-- Top bar -->
+    <div class="flex items-center justify-between px-[17px] py-[10px] bg-[#1f293780] border-[#374151] border-b w-full">
+      <div class="hidden max-[600px]:flex items-center font-bold">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 612 792" width="32" height="32">
+          <path fill="#fff" stroke-width="0" d="m498.71,155.16l28.74-33.1v-3.48l-1.32-.77-143.86,99.46-19.26-11.25s7.38-27.44,7.38-30.44.44-33.44.44-33.44c0,0-29.27,13.21-52.69,49.02,0,0-84.39-5.42-141.68,56.13-57.29,61.55-53.23,127.74-53.23,127.74,0,0-.39,61.94,24.19,90l1.35-.87s-22.65-77.71,23.42-137.71c0,0-20.71,70.45,25.74,120.77,46.45,50.32,100.65,49.55,132.77,64.45,32.13,14.9,62.9,40.45,78.29,92.03l2.1-.16s8.65-47.35-5.87-82.97c-14.52-35.61-29.42-50.71-65.81-72.39l-46.58-22.77s-59.1-24.26-61.61-89.87c0,0-2.13-35.03,29.81-67.26,0,0-18.19,49.65,15.29,81.39s68.13,21.16,68.13,21.16l6.84.13,73.42,32.39,6.26,4.87,5.81,6.48,6.48,7.16,4.74,4.06,5.52,2.03,12.48-.1,4-.42,5.52-.81,7.87-1.16,4.74-1.74,5.19-4.74,15.74-28.63,1.03-3.11.13-10.58s-22.84-33.77-41.71-55.74c-18.87-21.97-40.84-55.74-40.84-55.74l-10.94-16.65,38.52-43.45,43.45-49.94Z"/>
+          <path fill="#fff" stroke-width="0" d="m171.61,500.84s8.71,36.19,38.13,55.35,25.55,19.55,80.71,30,86.13,52.65,86.13,52.65l1.35,2.13h1.55s.39-30.77-21.1-54.97-42.58-37.74-96.77-46.26-90-38.9-90-38.9Z"/>
+        </svg>
+        WuwaBeacon
+      </div>
+      <button (click)="toggleSidebar()" class="cursor-pointer pointer-events-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none">
+          <path d="M4 6H20M4 12H20M4 18H20" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Scrollable content -->
+    <div #contentEl class="flex-1 overflow-auto flex justify-center items-start" (scroll)="onContentScroll($event)">
+      <div class="w-full max-w-[1100px]">
+        <div class="max-[601px]:ml-0 p-4 max-[1230px]:pr-17 max-[1230px]:pl-17 max-[421px]:pr-2 max-[421px]:pl-2 max-[421px]:box-border mt-[52px] max-[301px]:w-full">
+          <router-outlet></router-outlet>
+        </div>
+        <app-footer></app-footer>
+      </div>
+
+      @if (showScrollTop()) {
+        <button
+          class="fixed right-[20px] bottom-[20px] rounded-full bg-[#667a91] p-2 overflow-hidden flex items-center justify-center cursor-pointer pointer-events-auto z-50"
+          (click)="scrollToTop(contentEl)"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" height="25px" width="25px" viewBox="0 0 32 32">
+            <path d="M24.4,24c-0.9,0-1.8-0.3-2.5-1l-5.8-5.7c-0.1-0.1-0.2-0.1-0.3,0L10.1,23c-1.4,1.4-3.6,1.4-5,0c-0.7-0.7-1-1.6-1-2.5c0-1,0.4-1.8,1-2.5l9.4-9.3c0.9-0.9,2.3-0.9,3.1,0l9.4,9.3c0.7,0.7,1,1.6,1,2.5c0,1-0.4,1.8-1,2.5C26.2,23.7,25.3,24,24.4,24z"/>
+          </svg>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Mobile overlay -->
+  <button
+    (click)="closeSidebar()"
+    [class]="'fixed top-0 left-0 w-full h-[100vh] z-[999] bg-[#0000005c] transition-all duration-250 opacity-0 invisible '
+      + (showSidebar() ? 'max-[600px]:opacity-100 max-[600px]:visible' : '')"
+  ></button>
+</div>

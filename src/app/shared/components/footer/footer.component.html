@@ -1,0 +1,64 @@
+<footer class="bg-[#1f293780] border-[#374151] text-white w-full">
+  <div class="mx-auto px-20 py-12 max-[500px]:px-6 max-w-[1100px]">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-8">
+      <!-- Brand -->
+      <div class="space-y-4">
+        <h2 class="text-2xl font-bold">WuwaBeacon</h2>
+        <p class="text-gray-300 text-sm">Hướng dẫn và tối ưu nhân vật. Để những cuộc tranh luận có não hơn.</p>
+        <div class="flex space-x-4 pt-2">
+          <a href="https://www.facebook.com/songgiohu/" target="_blank" rel="noopener" class="text-gray-300 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+            </svg>
+          </a>
+          <a href="https://www.youtube.com/@meap0812" target="_blank" rel="noopener" class="text-gray-300 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/>
+            </svg>
+          </a>
+          <a href="https://discord.gg/songgiohu" target="_blank" rel="noopener" class="text-gray-300 hover:text-white transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.59 5.88997C17.36 5.31997 16.05 4.89997 14.67 4.65997C14.5 4.95997 14.3 5.36997 14.17 5.69997C12.71 5.47997 11.26 5.47997 9.83001 5.69997C9.69001 5.36997 9.49001 4.95997 9.32001 4.65997C7.94001 4.89997 6.63001 5.31997 5.40001 5.88997C2.92001 9.62997 2.25001 13.28 2.58001 16.87C4.23001 18.1 5.82001 18.84 7.39001 19.33C7.78001 18.8 8.12001 18.23 8.42001 17.64C7.85001 17.43 7.31001 17.16 6.80001 16.85C6.94001 16.75 7.07001 16.64 7.20001 16.54C10.33 18 13.72 18 16.81 16.54C16.94 16.65 17.07 16.75 17.21 16.85C16.7 17.16 16.15 17.42 15.59 17.64C15.89 18.23 16.23 18.8 16.62 19.33C18.19 18.84 19.79 18.1 21.43 16.87C21.82 12.7 20.76 9.08997 18.61 5.88997H18.59Z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div>
+        <h3 class="text-lg font-semibold mb-4">Đường Dẫn</h3>
+        <ul class="space-y-2">
+          <li><a routerLink="/" class="text-gray-300 hover:text-white transition-colors">Trang chủ</a></li>
+          <li><a routerLink="/characters" class="text-gray-300 hover:text-white transition-colors">Nhân vật</a></li>
+          <li><a routerLink="/guide" class="text-gray-300 hover:text-white transition-colors">Hướng dẫn</a></li>
+        </ul>
+      </div>
+
+      <!-- Features -->
+      <div>
+        <h3 class="text-lg font-semibold mb-4">Tính Năng</h3>
+        <ul class="space-y-2">
+          <li><a routerLink="/weapons" class="text-gray-300 hover:text-white transition-colors">Vũ Khí</a></li>
+          <li><a routerLink="/echos" class="text-gray-300 hover:text-white transition-colors">Echos</a></li>
+        </ul>
+      </div>
+
+      <!-- Coming soon -->
+      <div>
+        <h3 class="text-lg font-semibold mb-4">Coming soon</h3>
+        <p class="text-gray-300 text-sm mb-4">Coming soon</p>
+      </div>
+    </div>
+
+    <div class="border-t border-[#1A3A62] my-6"></div>
+
+    <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-300">
+      <p>© {{ year }} WuwaBeacon. All rights reserved.</p>
+      <div class="flex gap-4 mt-4 md:mt-0 max-[350px]:flex-wrap">
+        <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+        <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+        <a href="#" class="hover:text-white transition-colors">Contact Us</a>
+      </div>
+    </div>
+  </div>
+</footer>

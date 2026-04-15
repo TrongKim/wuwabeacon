@@ -1,0 +1,81 @@
+<div class="bg-[#1f293780] border border-[#374151] rounded-lg overflow-hidden p-6 md:p-8">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6 max-[336px]:flex-col gap-1">
+    <h1 class="text-3xl font-bold text-white">{{ weapon.name }}</h1>
+    <div class="flex">
+      @for (s of stars; track s) {
+        <span class="text-white text-xl">★</span>
+      }
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <!-- Image -->
+    <div class="flex justify-center items-center">
+      <img [src]="weapon.icon" [alt]="weapon.name" class="h-80 w-auto object-contain" />
+    </div>
+
+    <!-- Stats -->
+    <div class="md:col-span-2 space-y-6">
+      <!-- Level slider -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xl font-semibold text-white">Level</span>
+          <span class="text-2xl font-bold text-white">{{ level() }}</span>
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value="100"
+          (input)="onSliderChange($event)"
+          class="w-full h-2 bg-[#374151] rounded-full appearance-none cursor-pointer accent-[#60a5fa]"
+        />
+      </div>
+
+      <!-- Stat values -->
+      <div class="space-y-3 bg-[#1f293780] rounded-lg p-4">
+        <div class="flex justify-between items-center py-2 border-b border-[#374151]">
+          <span class="text-[#94a3b8]">{{ getStat(0).name }}</span>
+          <span class="font-medium text-white">{{ getStat(0).value }}</span>
+        </div>
+        <div class="flex justify-between items-center py-2 border-b border-[#374151]">
+          <span class="text-[#94a3b8]">{{ getStat(1).name }}</span>
+          <span class="font-medium text-white">{{ getStat(1).value }}</span>
+        </div>
+        <div class="flex justify-between items-center py-2">
+          <span class="text-[#94a3b8]">Weapon Type</span>
+          <span class="font-medium text-white">{{ weapon.type }}</span>
+        </div>
+      </div>
+
+      <!-- Ascension materials -->
+      <div>
+        <h3 class="text-xl font-semibold mb-3 text-white">Materials Needed</h3>
+        <div class="flex gap-4 flex-wrap">
+          @for (item of ascensionItems(); track item.id) {
+            <div class="flex flex-col items-center">
+              <div [class]="'w-16 h-16 bg-[#1f293780] border-b-2 rounded-full flex items-center justify-center mb-1 ' + borderColor(item.rank ?? 0)">
+                @if (item.icon) {
+                  <img [src]="item.icon" [alt]="item.name" width="46" height="46" />
+                }
+              </div>
+              <span class="text-sm text-[#94a3b8]">{{ item.quantity }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Effect -->
+      <div>
+        <h3 class="text-xl font-semibold mb-2 text-[#38bdf8]">{{ weapon.effect_name }}</h3>
+        <span class="text-[#94a3b8] leading-relaxed text-[15px]" [innerHTML]="highlightHtml(weapon.effect)"></span>
+      </div>
+
+      <!-- Description -->
+      <div>
+        <p class="text-[#94a3b8] italic leading-relaxed">{{ weapon.description }}</p>
+      </div>
+    </div>
+  </div>
+</div>
