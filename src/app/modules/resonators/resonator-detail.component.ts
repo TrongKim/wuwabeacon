@@ -44,6 +44,7 @@ export class ResonatorDetailPageComponent implements OnInit {
   level = signal(90);
   range = signal<0 | 1 | 2 | 3 | 4 | 5 | 6>(6);
   ascensionItems = signal<DisplayItem[]>([]);
+  skillLevel = signal(10);
 
   tabs: { mode: TabMode; label: string }[] = [
     { mode: 'profile', label: 'Thông tin' },

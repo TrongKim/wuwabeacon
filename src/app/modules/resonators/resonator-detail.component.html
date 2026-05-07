@@ -1,211 +1,236 @@
 <div class="min-h-screen text-white font-sans pb-4">
   @if (resonator()) {
-    <div class="container mx-auto flex gap-4 max-[686px]:flex-col max-[686px]:justify-center">
+  <div class="container mx-auto flex gap-4 max-[686px]:flex-col max-[686px]:justify-center">
 
-      <!-- Left sidebar -->
-      <div class="w-fit flex-shrink-0">
-        <!-- Name + stars -->
-        <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6 mb-4">
-          <div class="flex items-center gap-2 mb-2">
-            @if (elementIcon(resonator()!.element)) {
-              <div class="bg-[#33435896] rounded-full p-1">
-                <img [src]="elementIcon(resonator()!.element)" [alt]="resonator()!.element" width="24" height="24" class="object-contain" />
-              </div>
-            }
-            <h1 class="text-2xl font-bold">{{ resonator()!.name }}</h1>
+    <!-- Left sidebar -->
+    <div class="w-fit flex-shrink-0">
+      <!-- Name + stars -->
+      <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6 mb-4">
+        <div class="flex items-center gap-2 mb-2">
+          @if (elementIcon(resonator()!.element)) {
+          <div class="bg-[#33435896] rounded-full p-1">
+            <img [src]="elementIcon(resonator()!.element)" [alt]="resonator()!.element" width="24" height="24"
+              class="object-contain" />
           </div>
-          <div class="flex">
-            @for (s of stars(resonator()!.rank); track s) {
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 15 15" class="h-5 w-5 fill-current text-yellow-300">
-                <path fill="currentColor" d="M7.5 0C6.429 4.286 5.357 6.429 0 7.5c5.357 1.071 6.429 3.214 7.5 7.5 1.071-4.286 2.143-6.429 7.5-7.5C9.643 6.429 8.571 4.286 7.5 0Z"/>
-              </svg>
-            }
-          </div>
+          }
+          <h1 class="text-2xl font-bold">{{ resonator()!.name }}</h1>
         </div>
-
-        <!-- Tab nav -->
-        <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-3 mb-4">
-          <nav class="flex flex-col gap-1">
-            @for (tab of tabs; track tab.mode) {
-              <button
-                (click)="setTab(tab.mode)"
-                [class]="'w-full text-left px-3 py-2 rounded-[20px] cursor-pointer transition-all ' + (activeTab() === tab.mode ? 'bg-[#33435896]' : 'bg-transparent hover:bg-[#33435840]')"
-              >{{ tab.label }}</button>
-            }
-          </nav>
+        <div class="flex">
+          @for (s of stars(resonator()!.rank); track s) {
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 15 15"
+            class="h-5 w-5 fill-current text-yellow-300">
+            <path fill="currentColor"
+              d="M7.5 0C6.429 4.286 5.357 6.429 0 7.5c5.357 1.071 6.429 3.214 7.5 7.5 1.071-4.286 2.143-6.429 7.5-7.5C9.643 6.429 8.571 4.286 7.5 0Z" />
+          </svg>
+          }
         </div>
       </div>
 
-      <!-- Right content -->
-      <div class="flex-1 min-w-0">
-
-        <!-- PROFILE TAB -->
-        @if (activeTab() === 'profile') {
-          <div class="flex items-start gap-4 max-[875px]:flex-col max-[875px]:items-center max-[1000px]:flex-wrap">
-            <div class="card-img-wrapper">
-              <img [src]="resonator()!.card" [alt]="resonator()!.name" />
-            </div>
-            <div>
-              <!-- Stats card -->
-              <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6 mb-4">
-                <div class="flex justify-between items-center mb-3">
-                  <span class="text-xl font-semibold">Level</span>
-                  <span class="text-2xl font-bold">{{ level() }}</span>
-                </div>
-                <input type="range" min="0" max="100" value="100" (input)="onSliderChange($event)"
-                  class="w-full h-2 bg-[#374151] rounded-full appearance-none cursor-pointer accent-[#60a5fa] mb-4" />
-                <div class="space-y-2">
-                  <div class="flex justify-between py-2 border-b border-[#374151]">
-                    <span class="text-[#94a3b8]">Base HP</span>
-                    <span class="text-white font-medium">{{ getStat('Life') | number:'1.0-0' }}</span>
-                  </div>
-                  <div class="flex justify-between py-2 border-b border-[#374151]">
-                    <span class="text-[#94a3b8]">Base ATK</span>
-                    <span class="text-white font-medium">{{ getStat('Atk') | number:'1.0-0' }}</span>
-                  </div>
-                  <div class="flex justify-between py-2 border-b border-[#374151]">
-                    <span class="text-[#94a3b8]">Base DEF</span>
-                    <span class="text-white font-medium">{{ getStat('Def') | number:'1.0-0' }}</span>
-                  </div>
-                  <div class="flex justify-between py-2 border-b border-[#374151]">
-                    <span class="text-[#94a3b8]">Base Crit. Rate</span>
-                    <span class="text-white font-medium">5.0%</span>
-                  </div>
-                  <div class="flex justify-between py-2 border-b border-[#374151]">
-                    <span class="text-[#94a3b8]">Base Crit. DMG</span>
-                    <span class="text-white font-medium">150.0%</span>
-                  </div>
-                  <div class="flex justify-between py-2">
-                    <span class="text-[#94a3b8]">Energy Regen</span>
-                    <span class="text-white font-medium">100.0%</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Ascension materials -->
-              <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6 mb-4">
-                <h3 class="text-lg font-semibold mb-3">Ascension Materials</h3>
-                <div class="flex gap-3 flex-wrap">
-                  @for (item of ascensionItems(); track item.id) {
-                    <div class="flex flex-col items-center">
-                      <div [class]="'w-14 h-14 bg-[#1f293780] border-b-2 rounded-full flex items-center justify-center mb-1 ' + borderColor(item.rank ?? 0)">
-                        @if (item.icon) { <img [src]="item.icon" [alt]="item.name" width="40" height="40" /> }
-                      </div>
-                      <span class="text-xs text-[#94a3b8]">{{ item.quantity }}</span>
-                    </div>
-                  }
-                </div>
-              </div>
-
-              <!-- Info card -->
-              <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6 max-w-[335px]">
-                <div class="space-y-3">
-                  <div class="flex justify-between"><span class="text-gray-300">Element</span><span>{{ resonator()!.element }}</span></div>
-                  <div class="flex justify-between"><span class="text-gray-300">Weapon</span><span>{{ resonator()!.weapon_type }}</span></div>
-                  <div class="flex justify-between"><span class="text-gray-300">Country</span><span>{{ resonator()!.country }}</span></div>
-                  <div class="flex justify-between"><span class="text-gray-300">VA (EN)</span><span>{{ resonator()!.cv_en }}</span></div>
-                  <div class="flex justify-between"><span class="text-gray-300">VA (CHS)</span><span>{{ resonator()!.cv_cn }}</span></div>
-                  <div class="flex justify-between"><span class="text-gray-300">VA (JP)</span><span>{{ resonator()!.cv_jp }}</span></div>
-                  <div class="flex justify-between"><span class="text-gray-300">VA (KR)</span><span>{{ resonator()!.cv_ko }}</span></div>
-                  <p class="text-sm mt-4 text-gray-300">{{ resonator()!.description }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- FORTE (SKILLS) TAB -->
-        @if (activeTab() === 'forte') {
-          <div class="p-4">
-            <h1 class="text-4xl font-bold mb-6">Kĩ năng</h1>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              @for (skill of skills(); track skill.id) {
-                <div class="bg-[#1a2234] border border-[#374151] rounded-lg overflow-hidden col-span-2">
-                  <!-- Skill header -->
-                  <div class="p-4 flex items-center gap-4">
-                    <div class="w-16 h-16 bg-[#334d6c] rounded-full flex items-center justify-center border-2 border-[#667a91]">
-                      <div class="w-12 h-12 bg-[#4d647e] rounded-full flex items-center justify-center">
-                        <img [src]="skill.icon" [alt]="skill.name" width="32" height="32" />
-                      </div>
-                    </div>
-                    <h2 class="text-2xl font-bold capitalize">{{ skill.name || 'Đặc Biệt' }}</h2>
-                  </div>
-                  <!-- Skill body -->
-                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 bg-[#131620]">
-                    <div>
-                      <div class="bg-[#4d647e] rounded-full py-2 px-6 text-center mb-4">
-                        <span class="font-bold">Thông Tin Kĩ Năng</span>
-                      </div>
-                      <h3 class="text-yellow-300 font-bold mb-1">{{ skill.type }}</h3>
-                      <div [innerHTML]="cleanDescription(skill.description)"></div>
-                    </div>
-                    @if (skill.attributes.length > 0) {
-                      <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                          <thead>
-                            <tr class="border-b border-[#374151]">
-                              <th class="text-left py-2 text-[#94a3b8] min-w-36">Thuộc tính</th>
-                              @for (v of skill.attributes[0]?.values; track $index) {
-                                <th class="text-center py-2 text-[#94a3b8]">Lv.{{ $index + 1 }}</th>
-                              }
-                            </tr>
-                          </thead>
-                          <tbody>
-                            @for (attr of skill.attributes; track attr.attributeName) {
-                              <tr class="border-b border-[#374151]/50">
-                                <td class="py-2 text-[#94a3b8] pr-2">{{ attr.attributeName }}</td>
-                                @for (val of attr.values; track $index) {
-                                  <td class="py-2 text-center text-white">{{ val }}</td>
-                                }
-                              </tr>
-                            }
-                          </tbody>
-                        </table>
-                      </div>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
-        }
-
-        <!-- RESONANCE CHAIN TAB -->
-        @if (activeTab() === 'resonance-chain') {
-          <div class="p-4">
-            <h1 class="text-4xl font-bold mb-6">Resonance Chain</h1>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              @for (chain of chains(); track chain.id) {
-                <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6">
-                  <div class="flex items-center gap-3 mb-3">
-                    <div class="w-12 h-12 bg-[#334d6c] rounded-full flex items-center justify-center border border-[#667a91]">
-                      <img [src]="chain.icon" [alt]="chain.name" width="32" height="32" />
-                    </div>
-                    <div>
-                      <span class="text-xs text-[#94a3b8]">Sequence {{ chain.index }}</span>
-                      <h3 class="font-bold text-white">{{ chain.name }}</h3>
-                    </div>
-                  </div>
-                  <p class="text-[#94a3b8] text-sm leading-relaxed" [innerHTML]="chain.description"></p>
-                </div>
-              }
-            </div>
-          </div>
-        }
-
-        <!-- BACKSTORY TAB -->
-        @if (activeTab() === 'backstory') {
-          <div class="p-4">
-            <h1 class="text-4xl font-bold mb-6">Câu chuyện</h1>
-            <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6">
-              <p class="text-[#94a3b8] leading-relaxed whitespace-pre-line">{{ resonator()!.description }}</p>
-            </div>
-          </div>
-        }
-
+      <!-- Tab nav -->
+      <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-3 mb-4">
+        <nav class="flex flex-col gap-1">
+          @for (tab of tabs; track tab.mode) {
+          <button (click)="setTab(tab.mode)"
+            [class]="'w-full text-left px-3 py-2 rounded-[20px] cursor-pointer transition-all ' + (activeTab() === tab.mode ? 'bg-[#33435896]' : 'bg-transparent hover:bg-[#33435840]')">{{
+            tab.label }}</button>
+          }
+        </nav>
       </div>
     </div>
+
+    <!-- Right content -->
+    <div class="flex-1 min-w-0">
+
+      <!-- PROFILE TAB -->
+      @if (activeTab() === 'profile') {
+      <div class="flex items-start gap-4 max-[875px]:flex-col max-[875px]:items-center max-[1000px]:flex-wrap">
+        <div class="card-img-wrapper">
+          <img [src]="resonator()!.card" [alt]="resonator()!.name" />
+        </div>
+        <div>
+          <!-- Stats card -->
+          <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6 mb-4">
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-xl font-semibold">Level</span>
+              <span class="text-2xl font-bold">{{ level() }}</span>
+            </div>
+            <input type="range" min="0" max="100" value="100" (input)="onSliderChange($event)"
+              class="w-full h-2 bg-[#374151] rounded-full appearance-none cursor-pointer accent-[#60a5fa] mb-4" />
+            <div class="space-y-2">
+              <div class="flex justify-between py-2 border-b border-[#374151]">
+                <span class="text-[#94a3b8]">Base HP</span>
+                <span class="text-white font-medium">{{ getStat('Life') | number:'1.0-0' }}</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-[#374151]">
+                <span class="text-[#94a3b8]">Base ATK</span>
+                <span class="text-white font-medium">{{ getStat('Atk') | number:'1.0-0' }}</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-[#374151]">
+                <span class="text-[#94a3b8]">Base DEF</span>
+                <span class="text-white font-medium">{{ getStat('Def') | number:'1.0-0' }}</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-[#374151]">
+                <span class="text-[#94a3b8]">Base Crit. Rate</span>
+                <span class="text-white font-medium">5.0%</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-[#374151]">
+                <span class="text-[#94a3b8]">Base Crit. DMG</span>
+                <span class="text-white font-medium">150.0%</span>
+              </div>
+              <div class="flex justify-between py-2">
+                <span class="text-[#94a3b8]">Energy Regen</span>
+                <span class="text-white font-medium">100.0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ascension materials -->
+          <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6 mb-4">
+            <h3 class="text-lg font-semibold mb-3">Ascension Materials</h3>
+            <div class="flex gap-3 flex-wrap">
+              @for (item of ascensionItems(); track item.id) {
+              <div class="flex flex-col items-center">
+                <div
+                  [class]="'w-14 h-14 bg-[#1f293780] border-b-2 rounded-full flex items-center justify-center mb-1 ' + borderColor(item.rank ?? 0)">
+                  @if (item.icon) { <img [src]="item.icon" [alt]="item.name" width="40" height="40" /> }
+                </div>
+                <span class="text-xs text-[#94a3b8]">{{ item.quantity }}</span>
+              </div>
+              }
+            </div>
+          </div>
+
+          <!-- Info card -->
+          <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6 max-w-[335px]">
+            <div class="space-y-3">
+              <div class="flex justify-between"><span class="text-gray-300">Element</span><span>{{ resonator()!.element
+                  }}</span></div>
+              <div class="flex justify-between"><span class="text-gray-300">Weapon</span><span>{{
+                  resonator()!.weapon_type }}</span></div>
+              <div class="flex justify-between"><span class="text-gray-300">Country</span><span>{{ resonator()!.country
+                  }}</span></div>
+              <div class="flex justify-between"><span class="text-gray-300">VA (EN)</span><span>{{ resonator()!.cv_en
+                  }}</span></div>
+              <div class="flex justify-between"><span class="text-gray-300">VA (CHS)</span><span>{{ resonator()!.cv_cn
+                  }}</span></div>
+              <div class="flex justify-between"><span class="text-gray-300">VA (JP)</span><span>{{ resonator()!.cv_jp
+                  }}</span></div>
+              <div class="flex justify-between"><span class="text-gray-300">VA (KR)</span><span>{{ resonator()!.cv_ko
+                  }}</span></div>
+              <p class="text-sm mt-4 text-gray-300">{{ resonator()!.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- FORTE (SKILLS) TAB -->
+      @if (activeTab() === 'forte') {
+      <div class="p-4">
+        <h1 class="text-4xl font-bold mb-6">Kĩ năng</h1>
+        <div class="flex items-center gap-4 mb-6 bg-[#1f293780] border border-[#374151] rounded-xl p-4">
+          <span class="text-sm text-[#94a3b8] whitespace-nowrap">Skill Lv.</span>
+          <input type="range" min="1" max="10" [value]="skillLevel()"
+            (input)="skillLevel.set(+$any($event.target).value)"
+            class="w-full h-2 bg-[#374151] rounded-full appearance-none cursor-pointer accent-[#60a5fa]" />
+          <span class="text-white font-bold min-w-[24px] text-center">{{ skillLevel() }}</span>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          @for (skill of skills(); track skill.id) {
+          <div class="bg-[#1a2234] border border-[#374151] rounded-lg overflow-hidden col-span-2">
+            <!-- Skill header -->
+            <div class="p-4 flex items-center gap-4">
+              <div
+                class="w-16 h-16 bg-[#334d6c] rounded-full flex items-center justify-center border-2 border-[#667a91]">
+                <div class="w-12 h-12 bg-[#4d647e] rounded-full flex items-center justify-center">
+                  <img [src]="skill.icon" [alt]="skill.name" width="32" height="32" />
+                </div>
+              </div>
+              <div>
+                <h2 class="text-2xl font-bold capitalize">{{ skill.name || 'Đặc Biệt' }}</h2>
+                <span class="text-xs text-[#94a3b8]">{{ skill.type }}</span>
+              </div>
+            </div>
+            <!-- Skill body -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 bg-[#131620]">
+              @if (skill.attributes.length === 0) {
+              <div class="col-span-3">
+                <div class="bg-[#4d647e] rounded-full py-2 px-6 text-center mb-4">
+                  <span class="font-bold">Thông Tin Kĩ Năng</span>
+                </div>
+                <div [innerHTML]="cleanDescription(skill.description)"></div>
+              </div>
+              } @else {
+              <div class="col-span-2">
+                <div class="bg-[#4d647e] rounded-full py-2 px-6 text-center mb-4">
+                  <span class="font-bold">Thông Tin Kĩ Năng</span>
+                </div>
+                <div [innerHTML]="cleanDescription(skill.description)"></div>
+              </div>
+              }
+              @if (skill.attributes.length > 0) {
+              <div class="overflow-x-auto col-span-1">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-b border-[#374151]">
+                      <th class="text-left py-2 text-[#94a3b8]">Thuộc tính</th>
+                      <th class="text-right py-2 text-[#94a3b8]">Giá trị</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (attr of skill.attributes; track attr.attributeName) {
+                    <tr class="border-b border-[#374151]/50">
+                      <td class="py-2 text-[#94a3b8]">{{ attr.attributeName }}</td>
+                      <td class="py-2 text-right text-white font-medium">{{ attr.values[skillLevel() - 1] }}</td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              }
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      <!-- RESONANCE CHAIN TAB -->
+      @if (activeTab() === 'resonance-chain') {
+      <div class="p-4">
+        <h1 class="text-4xl font-bold mb-6">Resonance Chain</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          @for (chain of chains(); track chain.id) {
+          <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-12 h-12 bg-[#334d6c] rounded-full flex items-center justify-center border border-[#667a91]">
+                <img [src]="chain.icon" [alt]="chain.name" width="32" height="32" />
+              </div>
+              <div>
+                <span class="text-xs text-[#94a3b8]">Sequence {{ chain.index }}</span>
+                <h3 class="font-bold text-white">{{ chain.name }}</h3>
+              </div>
+            </div>
+            <p class="text-[#94a3b8] text-sm leading-relaxed" [innerHTML]="chain.description"></p>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      <!-- BACKSTORY TAB -->
+      @if (activeTab() === 'backstory') {
+      <div class="p-4">
+        <h1 class="text-4xl font-bold mb-6">Câu chuyện</h1>
+        <div class="bg-[#1f293780] border border-[#374151] rounded-xl p-6">
+          <p class="text-[#94a3b8] leading-relaxed whitespace-pre-line">{{ resonator()!.description }}</p>
+        </div>
+      </div>
+      }
+
+    </div>
+  </div>
   } @else {
-    <p class="text-slate-400 text-center mt-20">Đang tải...</p>
+  <p class="text-slate-400 text-center mt-20">Đang tải...</p>
   }
 </div>
