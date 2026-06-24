@@ -53,6 +53,11 @@ export const routes: Routes = [
       import('./modules/contribute/contribute.component').then((m) => m.ContributeComponent),
   },
   {
+    path: 'battle',
+    loadComponent: () =>
+      import('./modules/battle/battle.component').then((m) => m.BattleComponent),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

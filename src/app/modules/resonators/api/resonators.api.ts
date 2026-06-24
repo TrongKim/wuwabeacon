@@ -9,7 +9,7 @@ export class ResonatorsApi {
 
   getAll(): Observable<ICharacter[]> {
     return this.supabase.get<ICharacter>('resonators', {
-      select: 'id,name,card,rank,element,weapon_type,release_date',
+      select: 'id,name,card,icon,rank,element,weapon_type,release_date',
       order: 'release_date.desc,name.desc',
     });
   }

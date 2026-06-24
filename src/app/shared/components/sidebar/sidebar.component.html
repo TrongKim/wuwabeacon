@@ -46,10 +46,9 @@
           <a routerLink="/characters" [class]="'flex items-center p-2 rounded-md hover:bg-slate-700 text-slate-300 hover:text-white transition-colors '
             + (isActive('/characters') ? 'bg-slate-700 text-white' : '')">
             <div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 512 512" class="fill-white">
-                <path d="M147.57,320.188c-0.078-0.797-0.328-1.531-0.328-2.328v-6.828c0-3.25,0.531-6.453,1.594-9.5c0,0,17.016-22.781,25.063-49.547c-8.813-18.594-16.813-41.734-16.813-64.672c0-5.328,0.391-10.484,0.938-15.563c-11.484-12.031-27-18.844-44.141-18.844c-35.391,0-64.109,28.875-64.109,73.75c0,35.906,29.219,74.875,29.219,74.875c1.031,3.047,1.563,6.25,1.563,9.5v6.828c0,8.516-4.969,16.266-12.719,19.813l-46.391,18.953C10.664,361.594,2.992,371.5,0.852,383.156l-0.797,10.203c-0.406,5.313,1.406,10.547,5.031,14.438c3.609,3.922,8.688,6.125,14.016,6.125H94.93l3.109-39.953l0.203-1.078c3.797-20.953,17.641-38.766,36.984-47.672L147.57,320.188z"/>
-                <path d="M511.148,383.156c-2.125-11.656-9.797-21.563-20.578-26.531l-46.422-18.953c-7.75-3.547-12.688-11.297-12.688-19.813v-6.828c0-3.25,0.516-6.453,1.578-9.5c0,0,29.203-38.969,29.203-74.875c0-44.875-28.703-73.75-64.156-73.75c-17.109,0-32.625,6.813-44.141,18.875c0.563,5.063,0.953,10.203,0.953,15.531c0,22.922-7.984,46.063-16.781,64.656c8.031,26.766,25.078,49.563,25.078,49.563c1.031,3.047,1.578,6.25,1.578,9.5v6.828c0,0.797-0.266,1.531-0.344,2.328l11.5,4.688c20.156,9.219,34,27.031,37.844,47.984l0.188,1.094l3.094,39.969h75.859c5.328,0,10.406-2.203,14-6.125c3.625-3.891,5.438-9.125,5.031-14.438L511.148,383.156z"/>
-                <path d="M367.867,344.609l-56.156-22.953c-9.375-4.313-15.359-13.688-15.359-23.969v-8.281c0-3.906,0.625-7.797,1.922-11.5c0,0,35.313-47.125,35.313-90.594c0-54.313-34.734-89.234-77.594-89.234c-42.844,0-77.594,34.922-77.594,89.234c0,43.469,35.344,90.594,35.344,90.594c1.266,3.703,1.922,7.594,1.922,11.5v8.281c0,10.281-6.031,19.656-15.391,23.969l-56.156,22.953c-13.047,5.984-22.344,17.984-24.906,32.109l-2.891,37.203h139.672h139.672l-2.859-37.203C390.211,362.594,380.914,350.594,367.867,344.609z"/>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
               </svg>
             </div>
             <span [class]="'ml-3 transition-opacity duration-250 whitespace-nowrap overflow-hidden '
@@ -76,10 +75,29 @@
           <a routerLink="/tribute" [class]="'flex items-center p-2 rounded-md hover:bg-slate-700 text-slate-300 hover:text-white transition-colors '
             + (isActive('/tribute') ? 'bg-slate-700 text-white' : '')">
             <div class="w-[20px] h-[20px] min-w-[20px] flex items-center justify-center">
-              <img src="/trophy.svg" width="14" height="14" class="min-w-[15px] min-h-[15px] object-cover" alt="icon" />
+              <img src="/trophy.svg" width="14" height="14" class="min-w-[15px] min-h-[15px] object-cover" style="filter:brightness(0) invert(1)" alt="icon" />
             </div>
             <span [class]="'ml-3 transition-opacity duration-250 whitespace-nowrap overflow-hidden '
               + (showSidebar() ? 'opacity-100' : 'opacity-0')">Tribute</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/battle" [class]="'flex items-center p-2 rounded-md hover:bg-slate-700 text-slate-300 hover:text-white transition-colors '
+            + (isActive('/battle') ? 'bg-slate-700 text-white' : '')">
+            <div class="w-[20px] h-[20px] min-w-[20px] flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline>
+                <line x1="13" y1="19" x2="19" y2="13"></line>
+                <line x1="16" y1="16" x2="20" y2="20"></line>
+                <line x1="19" y1="21" x2="21" y2="19"></line>
+                <polyline points="9.5 6.5 21 18 21 21 18 21 6.5 9.5"></polyline>
+                <line x1="5" y1="11" x2="11" y2="5"></line>
+                <line x1="8" y1="8" x2="4" y2="4"></line>
+                <line x1="3" y1="5" x2="5" y2="3"></line>
+              </svg>
+            </div>
+            <span [class]="'ml-3 transition-opacity duration-250 whitespace-nowrap overflow-hidden '
+              + (showSidebar() ? 'opacity-100' : 'opacity-0')">Battle</span>
           </a>
         </li>
       </ul>

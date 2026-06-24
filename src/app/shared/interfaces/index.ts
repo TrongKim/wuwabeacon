@@ -25,6 +25,7 @@ export interface IWeapon {
 export interface ICharacter {
   id: number;
   name: string;
+  icon: string;
   card: string;
   rank: number;
   release_date: string;
