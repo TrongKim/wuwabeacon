@@ -1,0 +1,45 @@
+name: Angular deploy
+
+on:
+  push:
+    branches: [release]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy using ssh
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: 22
+        envs: GH_PAT
+        script: |
+          set -e
+          cd /home/wiwa-wiki-repo
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:$GH_PAT@github.com/TrongKim/wuwwabeacon.git
+          git fetch origin
+          git checkout release
+          git pull origin release
+          # Load bash để có fnm
+          source ~/.bashrc
+          # Dùng Node ổn định
+          export FNM_PATH="$HOME/.local/share/fnm"
+          export PATH="$FNM_PATH:$PATH"
+          eval "$(fnm env)"
+          fnm install 20
+          fnm default 20
+          fnm use 20
+          node -v
+          npm -v
+          npm install
+          ng build
+          pm2 reload wiwabeacon || pm2 start dist/wuwabeacon/server/server.mjs --name wiwabeacon
+          pm2 save
+      env:
+        GH_PAT: ${{ secrets.GH_PAT }}
