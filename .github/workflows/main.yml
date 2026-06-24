@@ -40,6 +40,7 @@ jobs:
           npm -v
           npm install
           npx ng build
+          npm install -g pm2
           pm2 reload wiwabeacon || pm2 start dist/wuwabeacon/server/server.mjs --name wiwabeacon
           pm2 save
       env:
