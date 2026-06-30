@@ -24,6 +24,7 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git remote set-url origin https://x-access-token:$GH_PAT@github.com/TrongKim/wuwabeacon.git
           git fetch origin
+          git reset --hard origin/release
           git checkout release
           git pull origin release
           # Load bash để có fnm
@@ -38,7 +39,8 @@ jobs:
           node -v
           npm -v
           npm install
-          ng build
+          npx ng build
+          npm install -g pm2
           pm2 reload wiwabeacon || pm2 start dist/wuwabeacon/server/server.mjs --name wiwabeacon
           pm2 save
       env:
