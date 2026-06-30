@@ -213,7 +213,7 @@ export class BattleComponent implements OnInit, OnDestroy {
       this.onTimeUp();
       return;
     }
-
+    
     if (this.isPickPhase()) {
       // Cannot pick already picked
       if (this.pickedIds().has(r.id)) return;
@@ -288,6 +288,11 @@ export class BattleComponent implements OnInit, OnDestroy {
   }
 
   iconOf(r: ICharacter): string { return r.icon || '/placeholder.svg'; }
+
+  iconOfPick(r: ICharacter): string { 
+    if (r.name.includes('Rover')) return '/ban-pick/Rover.jpg';
+    return '/ban-pick/' + r.name + '.jpg';
+  }
 
   // Slot arrays for UI
   allBanSlots = computed(() => Array.from({ length: 6 }, (_, i) => this.allBans()[i] ?? null));
