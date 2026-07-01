@@ -19,7 +19,7 @@ jobs:
         envs: GH_PAT
         script: |
           set -e
-          cd /home/wiwa-wiki-repo
+          cd /home/wuwabeacon
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git remote set-url origin https://x-access-token:$GH_PAT@github.com/TrongKim/wuwabeacon.git
