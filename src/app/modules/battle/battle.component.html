@@ -157,7 +157,7 @@
         @for (slot of p1PickSlots(); track $index) {
           <div class="pick-slot blue" [class.active]="isP1Turn() && !isBanPhase() && slot === null && p1picks().length === $index">
             @if (slot) {
-              <img [src]="iconOf(slot) | resolveImage" [alt]="slot.name" class="pick-img" />
+              <img [src]="iconOfPick(slot) | resolveImage" [alt]="slot.name" class="pick-img" />
               <span class="pick-name">{{ slot.name }}</span>
             } @else {
               <span class="pick-empty">Pick</span>
@@ -259,7 +259,7 @@
         @for (slot of p2PickSlots(); track $index) {
           <div class="pick-slot red" [class.active]="isP2Turn() && !isBanPhase() && slot === null && p2picks().length === $index">
             @if (slot) {
-              <img [src]="iconOf(slot) | resolveImage" [alt]="slot.name" class="pick-img" />
+              <img [src]="iconOfPick(slot) | resolveImage" [alt]="slot.name" class="pick-img" />
               <span class="pick-name">{{ slot.name }}</span>
             } @else {
               <span class="pick-empty">Pick</span>
