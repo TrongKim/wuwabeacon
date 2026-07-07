@@ -290,7 +290,8 @@ export class BattleComponent implements OnInit, OnDestroy {
   iconOf(r: ICharacter): string { return r.icon || '/placeholder.svg'; }
 
   iconOfPick(r: ICharacter): string { 
-    return r.name
+    if (r.name.includes('Rover')) return '/ban-pick/Rover.jpg';
+    return '/ban-pick/' + r.name + '.jpg';
   }
 
   // Slot arrays for UI

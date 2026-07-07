@@ -161,7 +161,7 @@
 // ===== MAIN =====
 .battle-main {
   display: grid;
-  grid-template-columns: 160px 1fr 160px;
+  grid-template-columns: 240px 1fr 240px;
   gap: 8px;
   align-items: start;
 }
@@ -170,7 +170,7 @@
 .picks-column {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .picks-label {
@@ -185,7 +185,7 @@
 
 .pick-slot {
   position: relative;
-  height: 72px;
+  height: 94px;
   border-radius: 8px;
   overflow: hidden;
   display: flex;
