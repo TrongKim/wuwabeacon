@@ -17,29 +17,35 @@ export class ResolveImagePipe implements PipeTransform {
 
 export type Phase =
   | 'idle'
-  | 'ban1a'  // P1 bans 1
-  | 'ban2a'  // P2 bans 1
-  | 'ban1b'  // P1 bans 1
-  | 'ban2b'  // P2 bans 1
-  | 'pick1a' // P1 picks 1
-  | 'pick2a' // P2 picks 2
-  | 'pick1b' // P1 picks 2
-  | 'pick2b' // P2 picks 2
-  | 'pick1c' // P1 picks 2
-  | 'pick2c' // P2 picks 2
-  | 'pick1d' // P1 picks 1
+  | 'ban1a' | 'ban2a'   // Turn 1: A ban → B ban
+  | 'ban1b' | 'ban2b'   // Turn 2: A ban → B ban
+  | 'pick1a'            // Turn 3: A pick 1
+  | 'pick2a'            // Turn 3: B pick 2
+  | 'pick1b'            // Turn 4: A pick 2
+  | 'pick2b'            // Turn 4: B pick 1
+  | 'ban2c' | 'ban1c'   // Turn 5: B ban → A ban
+  | 'pick2c'            // Turn 6: B pick 1
+  | 'pick1c'            // Turn 6: A pick 2
+  | 'pick2d'            // Turn 7: B pick 2
+  | 'pick1d'            // Turn 7: A pick 1
   | 'done';
 
-// How many picks each phase allows
 const PHASE_PICKS: Record<string, number> = {
-  pick1a: 1, pick2a: 2, pick1b: 2, pick2b: 2, pick1c: 2, pick2c: 2, pick1d: 1
+  pick1a: 1, pick2a: 2,
+  pick1b: 2, pick2b: 1,
+  pick2c: 1, pick1c: 2,
+  pick2d: 2, pick1d: 1,
 };
 
-// Phase sequence
 const PHASE_ORDER: Phase[] = [
   'idle',
-  'ban1a', 'ban2a', 'ban1b', 'ban2b',
-  'pick1a', 'pick2a', 'pick1b', 'pick2b', 'pick1c', 'pick2c', 'pick1d',
+  'ban1a', 'ban2a',
+  'ban1b', 'ban2b',
+  'pick1a', 'pick2a',
+  'pick1b', 'pick2b',
+  'ban2c', 'ban1c',
+  'pick2c', 'pick1c',
+  'pick2d', 'pick1d',
   'done',
 ];
 
@@ -53,7 +59,7 @@ interface BattleSession {
 const STORAGE_KEY = 'battle_history';
 const BAN_TIME = 30;
 const PICK_TIME = 30;
-const TRANSITION_DELAY = 2000;
+const TRANSITION_DELAY = 1000;
 
 @Component({
   selector: 'app-battle',
@@ -130,8 +136,8 @@ export class BattleComponent implements OnInit, OnDestroy {
   });
 
   // Which player is currently active
-  isP1Turn = computed(() => ['ban1a','ban1b','pick1a','pick1b','pick1c', 'pick1d'].includes(this.phase()));
-  isP2Turn = computed(() => ['ban2a','ban2b','pick2a','pick2b','pick2c'].includes(this.phase()));
+  isP1Turn = computed(() => ['ban1a','ban1b','ban1c','pick1a','pick1b','pick1c','pick1d'].includes(this.phase()));
+  isP2Turn = computed(() => ['ban2a','ban2b','ban2c','pick2a','pick2b','pick2c','pick2d'].includes(this.phase()));
   isBanPhase = computed(() => this.phase().startsWith('ban'));
   isPickPhase = computed(() => this.phase().startsWith('pick'));
 
@@ -164,7 +170,23 @@ export class BattleComponent implements OnInit, OnDestroy {
     setTimeout(() => this.goToPhase('ban1a'), 600);
   }
 
+  showBanAlert = signal(false);
+
   private goToPhase(phase: Phase): void {
+    this.clearTimer();
+    // Show "BAN TIME" alert when transitioning from pick phase to ban phase (turn 4→5)
+    if (phase === 'ban2c') {
+      this.showBanAlert.set(true);
+      setTimeout(() => {
+        this.showBanAlert.set(false);
+        this.doGoToPhase(phase);
+      }, 2000);
+      return;
+    }
+    this.doGoToPhase(phase);
+  }
+
+  private doGoToPhase(phase: Phase): void {
     this.clearTimer();
     this.phase.set(phase);
     this.phasePickCount.set(0);
@@ -204,7 +226,7 @@ export class BattleComponent implements OnInit, OnDestroy {
   // ===== CLICK TO BAN/PICK =====
   onResonatorClick(r: ICharacter): void {
     const p = this.phase();
-    if (p === 'idle' || p === 'done' || this.transitioning()) return;
+    if (p === 'idle' || p === 'done' || this.transitioning() || this.showBanAlert()) return;
     if (this.bannedIds().has(r.id)) return;
 
     if (this.isBanPhase()) {
@@ -283,6 +305,22 @@ export class BattleComponent implements OnInit, OnDestroy {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   }
 
+  resetBattle(): void {
+    this.clearTimer();
+    this.phase.set('idle');
+    this.opened.set(false);
+    this.p1picks.set([]);
+    this.p2picks.set([]);
+    this.p1bans.set([]);
+    this.p2bans.set([]);
+    this.allBans.set([]);
+    this.phasePickCount.set(0);
+    this.transitioning.set(false);
+    this.showBanAlert.set(false);
+    this.searchName.set('');
+    this.filterElement.set('');
+  }
+
   setFilter(el: ECharacterElementType | ''): void {
     this.filterElement.set(this.filterElement() === el ? '' : el);
   }
@@ -296,8 +334,8 @@ export class BattleComponent implements OnInit, OnDestroy {
 
   // Slot arrays for UI
   allBanSlots = computed(() => Array.from({ length: 6 }, (_, i) => this.allBans()[i] ?? null));
-  p1BanSlots = computed(() => Array.from({ length: 2 }, (_, i) => this.p1bans()[i] ?? null));
-  p2BanSlots = computed(() => Array.from({ length: 2 }, (_, i) => this.p2bans()[i] ?? null));
+  p1BanSlots = computed(() => Array.from({ length: 3 }, (_, i) => this.p1bans()[i] ?? null));
+  p2BanSlots = computed(() => Array.from({ length: 3 }, (_, i) => this.p2bans()[i] ?? null));
   p1PickSlots = computed(() => Array.from({ length: 6 }, (_, i) => this.p1picks()[i] ?? null));
   p2PickSlots = computed(() => Array.from({ length: 6 }, (_, i) => this.p2picks()[i] ?? null));
 

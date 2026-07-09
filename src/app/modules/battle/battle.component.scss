@@ -161,7 +161,7 @@
 // ===== MAIN =====
 .battle-main {
   display: grid;
-  grid-template-columns: 240px 1fr 240px;
+  grid-template-columns: 250px 1fr 250px;
   gap: 8px;
   align-items: start;
 }
@@ -217,6 +217,7 @@
   width: 100%;
   height: auto;
   object-fit: cover;
+  margin-top: 28px;
 }
 
 .pick-name {
@@ -224,7 +225,7 @@
   bottom: 0;
   left: 0; right: 0;
   background: linear-gradient(0deg, rgba(0,0,0,0.8), transparent);
-  font-size: 9px;
+  font-size: 16px;
   font-weight: 600;
   text-align: center;
   padding: 4px 2px 2px;
@@ -243,11 +244,11 @@
 
 @keyframes glow-blue {
   0%, 100% { box-shadow: 0 0 12px #3b82f640; }
-  50% { box-shadow: 0 0 24px #3b82f680; }
+  50% { box-shadow: 0 0 36px #3b83f6ef; }
 }
 @keyframes glow-red {
   0%, 100% { box-shadow: 0 0 12px #f8717140; }
-  50% { box-shadow: 0 0 24px #f8717180; }
+  50% { box-shadow: 0 0 36px #f87171d8; }
 }
 
 // ===== CENTER =====
@@ -434,4 +435,37 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+// ===== BAN ALERT =====
+.ban-alert-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 56px;
+  background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(76,29,29,0.95));
+  border: 2px solid #f87171;
+  border-radius: 20px;
+  box-shadow: 0 0 60px #f8717160, 0 0 120px #f8717130;
+  animation: ban-alert-in 0.3s ease-out;
+}
+
+.ban-alert-label {
+  font-size: 36px;
+  font-weight: 900;
+  color: #f87171;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 24px #f87171;
+}
+
+.ban-alert-sub {
+  font-size: 13px;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+@keyframes ban-alert-in {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
 }

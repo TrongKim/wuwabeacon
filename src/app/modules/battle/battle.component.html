@@ -1,3 +1,13 @@
+<!-- BAN TIME ALERT OVERLAY -->
+@if (showBanAlert()) {
+  <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm pointer-events-auto">
+    <div class="ban-alert-box">
+      <div class="ban-alert-label">⚔ BAN TIME ⚔</div>
+      <div class="ban-alert-sub">Lượt ban tiếp theo bắt đầu</div>
+    </div>
+  </div>
+}
+
 <!-- ===== START SCREEN ===== -->
 @if (!opened()) {
   <div class="min-h-[80vh] flex flex-col items-center justify-center gap-8">
@@ -131,10 +141,15 @@
         }
         @if (phase() === 'done') {
           <div class="timer-done">⚔ Kết thúc ⚔</div>
-          <button (click)="saveSession()"
-            class="save-btn" [class.saved]="saveSuccess()">
-            {{ saveSuccess() ? '✓ Đã lưu' : 'Lưu trận' }}
-          </button>
+          <div class="flex gap-2 mt-1">
+            <button (click)="saveSession()"
+              class="save-btn" [class.saved]="saveSuccess()">
+              {{ saveSuccess() ? '✓ Đã lưu' : 'Lưu trận' }}
+            </button>
+            <button (click)="resetBattle()" class="save-btn">
+              ← Thoát
+            </button>
+          </div>
         }
       </div>
 
@@ -175,7 +190,7 @@
             <div class="ban-label blue">BLUE BANS</div>
             <div class="ban-slots">
               @for (slot of p1BanSlots(); track $index) {
-                <div class="ban-slot blue" [class.active]="(phase() === 'ban1a' || phase() === 'ban1b') && slot === null && p1bans().length === $index">
+                <div class="ban-slot blue" [class.active]="(phase() === 'ban1a' || phase() === 'ban1b' || phase() === 'ban1c') && slot === null && p1bans().length === $index">
                   @if (slot) {
                     <img [src]="iconOf(slot) | resolveImage" [alt]="slot.name" class="ban-img" />
                   }
@@ -205,7 +220,7 @@
             <div class="ban-label red">RED BANS</div>
             <div class="ban-slots">
               @for (slot of p2BanSlots(); track $index) {
-                <div class="ban-slot red" [class.active]="(phase() === 'ban2a' || phase() === 'ban2b') && slot === null && p2bans().length === $index">
+                <div class="ban-slot red" [class.active]="(phase() === 'ban2a' || phase() === 'ban2b' || phase() === 'ban2c') && slot === null && p2bans().length === $index">
                   @if (slot) {
                     <img [src]="iconOf(slot) | resolveImage" [alt]="slot.name" class="ban-img" />
                   }
