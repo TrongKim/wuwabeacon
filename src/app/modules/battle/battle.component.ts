@@ -171,6 +171,7 @@ export class BattleComponent implements OnInit, OnDestroy {
   }
 
   showBanAlert = signal(false);
+  selectedId = signal<number | null>(null);
 
   private goToPhase(phase: Phase): void {
     this.clearTimer();
@@ -187,6 +188,7 @@ export class BattleComponent implements OnInit, OnDestroy {
   }
 
   private doGoToPhase(phase: Phase): void {
+    this.selectedId.set(null);
     this.clearTimer();
     this.phase.set(phase);
     this.phasePickCount.set(0);
@@ -228,6 +230,16 @@ export class BattleComponent implements OnInit, OnDestroy {
     const p = this.phase();
     if (p === 'idle' || p === 'done' || this.transitioning() || this.showBanAlert()) return;
     if (this.bannedIds().has(r.id)) return;
+    if (this.isPickPhase() && this.pickedIds().has(r.id)) return;
+
+    // First click: select/highlight
+    if (this.selectedId() !== r.id) {
+      this.selectedId.set(r.id);
+      return;
+    }
+
+    // Second click on same card: confirm action
+    this.selectedId.set(null);
 
     if (this.isBanPhase()) {
       if (this.isP1Turn()) this.p1bans.update(b => [...b, r]);

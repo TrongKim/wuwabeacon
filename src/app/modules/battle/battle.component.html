@@ -257,6 +257,7 @@
               [class.disabled]="isDisabled(r)"
               [class.picked]="isPickedAny(r)"
               [class.banned]="isBanned(r)"
+              [class.selected]="selectedId() === r.id"
               [disabled]="isDisabled(r) || phase() === 'idle' || phase() === 'done' || transitioning()"
               (click)="onResonatorClick(r)"
               [title]="r.name"
