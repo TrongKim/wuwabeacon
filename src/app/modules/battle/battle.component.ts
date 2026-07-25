@@ -42,7 +42,7 @@ const PHASE_ORDER: Phase[] = [
   'done',
 ];
 
-const BAN_TIME = 30;
+const BAN_TIME = 45;
 
 function pickTime(phase: string): number {
   const count = PHASE_PICKS[phase] ?? 1;
@@ -305,6 +305,18 @@ export class BattleComponent implements OnInit, OnDestroy {
   private onTimeUp(): void {
     if (this.transitioning()) return;
     this.clearTimer();
+    this.pushUndo();
+    this.transitioning.set(true);
+    setTimeout(() => {
+      this.transitioning.set(false);
+      this.advancePhase();
+    }, TRANSITION_DELAY);
+  }
+
+  // Used after a player action (ban/pick confirmed) — undo already pushed before state change
+  private advanceAfterAction(): void {
+    if (this.transitioning()) return;
+    this.clearTimer();
     this.transitioning.set(true);
     setTimeout(() => {
       this.transitioning.set(false);
@@ -331,14 +343,15 @@ export class BattleComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Second click → confirm, push undo first
+    // Second click → confirm
+    // Push undo BEFORE modifying state so snapshot captures pre-action state
     this.pushUndo();
     this.selectedId.set(null);
 
     if (this.isBanPhase()) {
       if (this.isP1Turn()) this.p1bans.update(b => [...b, r]);
       else                 this.p2bans.update(b => [...b, r]);
-      this.onTimeUp();
+      this.advanceAfterAction();
       return;
     }
 
@@ -349,7 +362,7 @@ export class BattleComponent implements OnInit, OnDestroy {
       const needed = PHASE_PICKS[p] ?? 1;
       const done = this.phasePickCount() + 1;
       this.phasePickCount.set(done);
-      if (done >= needed) this.onTimeUp();
+      if (done >= needed) this.advanceAfterAction();
     }
   }
 
