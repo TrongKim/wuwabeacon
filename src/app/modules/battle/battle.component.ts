@@ -17,17 +17,13 @@ export class ResolveImagePipe implements PipeTransform {
 
 export type Phase =
   | 'idle'
-  | 'ban1a' | 'ban2a'   // Turn 1: A ban → B ban
-  | 'ban1b' | 'ban2b'   // Turn 2: A ban → B ban
-  | 'pick1a'            // Turn 3: A pick 1
-  | 'pick2a'            // Turn 3: B pick 2
-  | 'pick1b'            // Turn 4: A pick 2
-  | 'pick2b'            // Turn 4: B pick 1
-  | 'ban2c' | 'ban1c'   // Turn 5: B ban → A ban
-  | 'pick2c'            // Turn 6: B pick 1
-  | 'pick1c'            // Turn 6: A pick 2
-  | 'pick2d'            // Turn 7: B pick 2
-  | 'pick1d'            // Turn 7: A pick 1
+  | 'ban1a' | 'ban2a'
+  | 'ban1b' | 'ban2b'
+  | 'pick1a' | 'pick2a'
+  | 'pick1b' | 'pick2b'
+  | 'ban2c' | 'ban1c'
+  | 'pick2c' | 'pick1c'
+  | 'pick2d' | 'pick1d'
   | 'done';
 
 const PHASE_PICKS: Record<string, number> = {
@@ -39,27 +35,43 @@ const PHASE_PICKS: Record<string, number> = {
 
 const PHASE_ORDER: Phase[] = [
   'idle',
-  'ban1a', 'ban2a',
-  'ban1b', 'ban2b',
-  'pick1a', 'pick2a',
-  'pick1b', 'pick2b',
+  'ban1a', 'ban2a', 'ban1b', 'ban2b',
+  'pick1a', 'pick2a', 'pick1b', 'pick2b',
   'ban2c', 'ban1c',
-  'pick2c', 'pick1c',
-  'pick2d', 'pick1d',
+  'pick2c', 'pick1c', 'pick2d', 'pick1d',
   'done',
 ];
 
+const BAN_TIME = 30;
+
+function pickTime(phase: string): number {
+  const count = PHASE_PICKS[phase] ?? 1;
+  return count * 45;
+}
+
+const TRANSITION_DELAY = 1000;
+
+interface BattleSnapshot {
+  phase: Phase;
+  p1picks: ICharacter[];
+  p2picks: ICharacter[];
+  p1bans: ICharacter[];
+  p2bans: ICharacter[];
+  phasePickCount: number;
+}
+
 interface BattleSession {
-  id: string; date: string;
-  player1Name: string; player2Name: string;
-  p1picks: string[]; p2picks: string[];
-  p1bans: string[]; p2bans: string[];
+  id: string;
+  date: string;
+  player1Name: string;
+  player2Name: string;
+  p1picks: string[];
+  p2picks: string[];
+  p1bans: string[];
+  p2bans: string[];
 }
 
 const STORAGE_KEY = 'battle_history';
-const BAN_TIME = 30;
-const PICK_TIME = 30;
-const TRANSITION_DELAY = 1000;
 
 @Component({
   selector: 'app-battle',
@@ -72,10 +84,10 @@ const TRANSITION_DELAY = 1000;
 export class BattleComponent implements OnInit, OnDestroy {
   private api = inject(ResonatorsApi);
   private platformId = inject(PLATFORM_ID);
-  private timerInterval: ReturnType<typeof setInterval> | null = null;
+  private timerRef: ReturnType<typeof setInterval> | null = null;
 
   allResonators = signal<ICharacter[]>([]);
-  allBans = signal<ICharacter[]>([]); // pre-game all bans
+  allBans = signal<ICharacter[]>([]);
 
   p1name = 'Player 1';
   p2name = 'Player 2';
@@ -87,7 +99,7 @@ export class BattleComponent implements OnInit, OnDestroy {
   phase = signal<Phase>('idle');
   timeLeft = signal(BAN_TIME);
   transitioning = signal(false);
-  phasePickCount = signal(0); // picks made in current pick phase
+  phasePickCount = signal(0);
 
   searchName = signal('');
   filterElement = signal<ECharacterElementType | ''>('');
@@ -101,18 +113,24 @@ export class BattleComponent implements OnInit, OnDestroy {
   history = signal<BattleSession[]>([]);
   saveSuccess = signal(false);
 
-  opened = signal(false); // animation: false=start button, true=full UI
+  opened = signal(false);
+  showBanAlert = signal(false);
+  selectedId = signal<number | null>(null);
+
+  // Undo — plain array + reactive counter
+  undoStack: BattleSnapshot[] = [];
+  undoCount = signal(0);
+  canUndo = computed(() => this.undoCount() > 0);
 
   elements = [
-    { code: ECharacterElementType.AERO, icon: '/elements_icon/Aero.png' },
-    { code: ECharacterElementType.ELECTRO, icon: '/elements_icon/Electro.png' },
-    { code: ECharacterElementType.FUSION, icon: '/elements_icon/Fusion.png' },
-    { code: ECharacterElementType.GLACIO, icon: '/elements_icon/Glacio.png' },
-    { code: ECharacterElementType.HAVOC, icon: '/elements_icon/Havoc.png' },
-    { code: ECharacterElementType.SPECTRO, icon: '/elements_icon/Spectro.png' },
+    { code: ECharacterElementType.AERO,     icon: '/elements_icon/Aero.png' },
+    { code: ECharacterElementType.ELECTRO,  icon: '/elements_icon/Electro.png' },
+    { code: ECharacterElementType.FUSION,   icon: '/elements_icon/Fusion.png' },
+    { code: ECharacterElementType.GLACIO,   icon: '/elements_icon/Glacio.png' },
+    { code: ECharacterElementType.HAVOC,    icon: '/elements_icon/Havoc.png' },
+    { code: ECharacterElementType.SPECTRO,  icon: '/elements_icon/Spectro.png' },
   ];
 
-  // IDs already used (picked by either side)
   pickedIds = computed(() => new Set([
     ...this.p1picks().map(r => r.id),
     ...this.p2picks().map(r => r.id),
@@ -135,25 +153,45 @@ export class BattleComponent implements OnInit, OnDestroy {
     });
   });
 
-  // Which player is currently active
-  isP1Turn = computed(() => ['ban1a','ban1b','ban1c','pick1a','pick1b','pick1c','pick1d'].includes(this.phase()));
-  isP2Turn = computed(() => ['ban2a','ban2b','ban2c','pick2a','pick2b','pick2c','pick2d'].includes(this.phase()));
-  isBanPhase = computed(() => this.phase().startsWith('ban'));
+  isP1Turn = computed(() =>
+    ['ban1a','ban1b','ban1c','pick1a','pick1b','pick1c','pick1d'].includes(this.phase()));
+  isP2Turn = computed(() =>
+    ['ban2a','ban2b','ban2c','pick2a','pick2b','pick2c','pick2d'].includes(this.phase()));
+  isBanPhase  = computed(() => this.phase().startsWith('ban'));
   isPickPhase = computed(() => this.phase().startsWith('pick'));
+
+  currentPhaseTime = computed(() => {
+    const p = this.phase();
+    return p.startsWith('ban') ? BAN_TIME : pickTime(p);
+  });
 
   phaseLabel = computed(() => {
     const p = this.phase();
     if (p === 'idle') return '';
     if (p === 'done') return 'Kết thúc';
-    if (p.startsWith('ban')) {
-      const who = this.isP1Turn() ? this.p1name : this.p2name;
-      return `${who} — BAN`;
-    }
     const who = this.isP1Turn() ? this.p1name : this.p2name;
+    if (p.startsWith('ban')) return `${who} — BAN`;
     const count = PHASE_PICKS[p] ?? 1;
     return `${who} — PICK (${count - this.phasePickCount()} còn lại)`;
   });
 
+  timerColor = computed(() => {
+    const pct = this.timeLeft() / this.currentPhaseTime();
+    if (pct <= 0.1) return '#ef4444';
+    if (pct <= 0.25) return '#f97316';
+    return '#60a5fa';
+  });
+
+  timerPercent = computed(() => (this.timeLeft() / this.currentPhaseTime()) * 100);
+
+  // Slot arrays
+  allBanSlots  = computed(() => Array.from({ length: 6 }, (_, i) => this.allBans()[i]  ?? null));
+  p1BanSlots   = computed(() => Array.from({ length: 3 }, (_, i) => this.p1bans()[i]  ?? null));
+  p2BanSlots   = computed(() => Array.from({ length: 3 }, (_, i) => this.p2bans()[i]  ?? null));
+  p1PickSlots  = computed(() => Array.from({ length: 6 }, (_, i) => this.p1picks()[i] ?? null));
+  p2PickSlots  = computed(() => Array.from({ length: 6 }, (_, i) => this.p2picks()[i] ?? null));
+
+  // ===== LIFECYCLE =====
   ngOnInit(): void {
     this.api.getAll().subscribe(list => this.allResonators.set(list));
     if (isPlatformBrowser(this.platformId)) {
@@ -164,18 +202,72 @@ export class BattleComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void { this.clearTimer(); }
 
-  // ===== START =====
+  // ===== UNDO =====
+  private snapshot(): BattleSnapshot {
+    return {
+      phase: this.phase(),
+      p1picks: [...this.p1picks()],
+      p2picks: [...this.p2picks()],
+      p1bans:  [...this.p1bans()],
+      p2bans:  [...this.p2bans()],
+      phasePickCount: this.phasePickCount(),
+    };
+  }
+
+  private pushUndo(): void {
+    this.undoStack.push(this.snapshot());
+    this.undoCount.set(this.undoStack.length);
+  }
+
+  undo(): void {
+    const snap = this.undoStack.pop();
+    if (!snap) return;
+    this.undoCount.set(this.undoStack.length);
+    this.clearTimer();
+    this.transitioning.set(false);
+    this.showBanAlert.set(false);
+    this.selectedId.set(null);
+    this.phase.set(snap.phase);
+    this.p1picks.set(snap.p1picks);
+    this.p2picks.set(snap.p2picks);
+    this.p1bans.set(snap.p1bans);
+    this.p2bans.set(snap.p2bans);
+    this.phasePickCount.set(snap.phasePickCount);
+    if (snap.phase !== 'done' && snap.phase !== 'idle') {
+      const time = snap.phase.startsWith('ban') ? BAN_TIME : pickTime(snap.phase);
+      this.timeLeft.set(time);
+      this.startTimer();
+    }
+  }
+
+  // ===== START / RESET =====
   startBattle(): void {
+    this.undoStack = [];
+    this.undoCount.set(0);
     this.opened.set(true);
     setTimeout(() => this.goToPhase('ban1a'), 600);
   }
 
-  showBanAlert = signal(false);
-  selectedId = signal<number | null>(null);
+  resetBattle(): void {
+    this.clearTimer();
+    this.undoStack = [];
+    this.undoCount.set(0);
+    this.phase.set('idle');
+    this.opened.set(false);
+    this.p1picks.set([]); this.p2picks.set([]);
+    this.p1bans.set([]);  this.p2bans.set([]);
+    this.allBans.set([]);
+    this.phasePickCount.set(0);
+    this.transitioning.set(false);
+    this.showBanAlert.set(false);
+    this.selectedId.set(null);
+    this.searchName.set('');
+    this.filterElement.set('');
+  }
 
+  // ===== PHASE NAVIGATION =====
   private goToPhase(phase: Phase): void {
     this.clearTimer();
-    // Show "BAN TIME" alert when transitioning from pick phase to ban phase (turn 4→5)
     if (phase === 'ban2c') {
       this.showBanAlert.set(true);
       setTimeout(() => {
@@ -193,13 +285,13 @@ export class BattleComponent implements OnInit, OnDestroy {
     this.phase.set(phase);
     this.phasePickCount.set(0);
     if (phase === 'done') return;
-    const time = phase.startsWith('ban') ? BAN_TIME : PICK_TIME;
+    const time = phase.startsWith('ban') ? BAN_TIME : pickTime(phase);
     this.timeLeft.set(time);
     this.startTimer();
   }
 
   private startTimer(): void {
-    this.timerInterval = setInterval(() => {
+    this.timerRef = setInterval(() => {
       const t = this.timeLeft() - 1;
       this.timeLeft.set(t);
       if (t <= 0) this.onTimeUp();
@@ -207,10 +299,11 @@ export class BattleComponent implements OnInit, OnDestroy {
   }
 
   private clearTimer(): void {
-    if (this.timerInterval) { clearInterval(this.timerInterval); this.timerInterval = null; }
+    if (this.timerRef) { clearInterval(this.timerRef); this.timerRef = null; }
   }
 
   private onTimeUp(): void {
+    if (this.transitioning()) return;
     this.clearTimer();
     this.transitioning.set(true);
     setTimeout(() => {
@@ -225,40 +318,37 @@ export class BattleComponent implements OnInit, OnDestroy {
     this.goToPhase(next);
   }
 
-  // ===== CLICK TO BAN/PICK =====
+  // ===== CLICK =====
   onResonatorClick(r: ICharacter): void {
     const p = this.phase();
     if (p === 'idle' || p === 'done' || this.transitioning() || this.showBanAlert()) return;
     if (this.bannedIds().has(r.id)) return;
     if (this.isPickPhase() && this.pickedIds().has(r.id)) return;
 
-    // First click: select/highlight
+    // First click → highlight
     if (this.selectedId() !== r.id) {
       this.selectedId.set(r.id);
       return;
     }
 
-    // Second click on same card: confirm action
+    // Second click → confirm, push undo first
+    this.pushUndo();
     this.selectedId.set(null);
 
     if (this.isBanPhase()) {
       if (this.isP1Turn()) this.p1bans.update(b => [...b, r]);
-      else this.p2bans.update(b => [...b, r]);
+      else                 this.p2bans.update(b => [...b, r]);
       this.onTimeUp();
       return;
     }
-    
-    if (this.isPickPhase()) {
-      // Cannot pick already picked
-      if (this.pickedIds().has(r.id)) return;
-      const isP1 = this.isP1Turn();
-      if (isP1) this.p1picks.update(b => [...b, r]);
-      else this.p2picks.update(b => [...b, r]);
 
+    if (this.isPickPhase()) {
+      if (this.pickedIds().has(r.id)) return;
+      if (this.isP1Turn()) this.p1picks.update(b => [...b, r]);
+      else                 this.p2picks.update(b => [...b, r]);
       const needed = PHASE_PICKS[p] ?? 1;
       const done = this.phasePickCount() + 1;
       this.phasePickCount.set(done);
-
       if (done >= needed) this.onTimeUp();
     }
   }
@@ -269,29 +359,16 @@ export class BattleComponent implements OnInit, OnDestroy {
     return false;
   }
 
-  isBanned(r: ICharacter): boolean { return this.bannedIds().has(r.id); }
+  isBanned(r: ICharacter): boolean   { return this.bannedIds().has(r.id); }
   isPickedAny(r: ICharacter): boolean { return this.pickedIds().has(r.id); }
 
-  // ===== TIMER COLOR =====
-  timerColor = computed(() => {
-    const t = this.timeLeft();
-    if (t <= 5) return '#ef4444';
-    if (t <= 10) return '#f97316';
-    return '#60a5fa';
-  });
-
-  timerPercent = computed(() => {
-    const total = this.isBanPhase() ? BAN_TIME : PICK_TIME;
-    return (this.timeLeft() / total) * 100;
-  });
-
   // ===== EDIT NAME =====
-  openEditP1(): void { this.editNameP1 = this.p1name; this.showEditP1.set(true); }
+  openEditP1(): void  { this.editNameP1 = this.p1name; this.showEditP1.set(true); }
   confirmEditP1(): void { if (this.editNameP1.trim()) this.p1name = this.editNameP1.trim(); this.showEditP1.set(false); }
-  openEditP2(): void { this.editNameP2 = this.p2name; this.showEditP2.set(true); }
+  openEditP2(): void  { this.editNameP2 = this.p2name; this.showEditP2.set(true); }
   confirmEditP2(): void { if (this.editNameP2.trim()) this.p2name = this.editNameP2.trim(); this.showEditP2.set(false); }
 
-  // ===== SAVE =====
+  // ===== SAVE / DELETE =====
   saveSession(): void {
     const session: BattleSession = {
       id: Date.now().toString(),
@@ -299,8 +376,8 @@ export class BattleComponent implements OnInit, OnDestroy {
       player1Name: this.p1name, player2Name: this.p2name,
       p1picks: this.p1picks().map(r => r.name),
       p2picks: this.p2picks().map(r => r.name),
-      p1bans: this.p1bans().map(r => r.name),
-      p2bans: this.p2bans().map(r => r.name),
+      p1bans:  this.p1bans().map(r => r.name),
+      p2bans:  this.p2bans().map(r => r.name),
     };
     const updated = [session, ...this.history()].slice(0, 20);
     this.history.set(updated);
@@ -317,48 +394,26 @@ export class BattleComponent implements OnInit, OnDestroy {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   }
 
-  resetBattle(): void {
-    this.clearTimer();
-    this.phase.set('idle');
-    this.opened.set(false);
-    this.p1picks.set([]);
-    this.p2picks.set([]);
-    this.p1bans.set([]);
-    this.p2bans.set([]);
-    this.allBans.set([]);
-    this.phasePickCount.set(0);
-    this.transitioning.set(false);
-    this.showBanAlert.set(false);
-    this.searchName.set('');
-    this.filterElement.set('');
-  }
-
+  // ===== FILTER =====
   setFilter(el: ECharacterElementType | ''): void {
     this.filterElement.set(this.filterElement() === el ? '' : el);
   }
 
-  iconOf(r: ICharacter): string { return r.icon || '/placeholder.svg'; }
-
-  iconOfPick(r: ICharacter): string { 
+  // ===== ICONS =====
+  iconOf(r: ICharacter): string     { return r.icon.replace('https://api.encore.moe/resource/Data', '') || '/placeholder.svg'; }
+  iconOfPick(r: ICharacter): string {
     if (r.name.includes('Rover')) return '/ban-pick/Rover.jpg';
-    return '/ban-pick/' + r.name + '.jpg';
+    return '/ban-pick/' + r.name.replace(':', '') + '.jpg';
   }
 
-  // Slot arrays for UI
-  allBanSlots = computed(() => Array.from({ length: 6 }, (_, i) => this.allBans()[i] ?? null));
-  p1BanSlots = computed(() => Array.from({ length: 3 }, (_, i) => this.p1bans()[i] ?? null));
-  p2BanSlots = computed(() => Array.from({ length: 3 }, (_, i) => this.p2bans()[i] ?? null));
-  p1PickSlots = computed(() => Array.from({ length: 6 }, (_, i) => this.p1picks()[i] ?? null));
-  p2PickSlots = computed(() => Array.from({ length: 6 }, (_, i) => this.p2picks()[i] ?? null));
 
-  // All ban: pre-game, click to toggle
+  // ===== ALL BAN (pre-game) =====
   toggleAllBan(r: ICharacter): void {
-    if (this.opened()) return; // only before start
-    if (this.allBans().some(x => x.id === r.id)) {
+    if (this.opened()) return;
+    if (this.allBans().some(x => x.id === r.id))
       this.allBans.update(b => b.filter(x => x.id !== r.id));
-    } else {
+    else
       this.allBans.update(b => [...b, r]);
-    }
   }
 
   isAllBanned(r: ICharacter): boolean {

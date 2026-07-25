@@ -1,4 +1,6 @@
-:host { display: block; }
+:host {
+  display: block;
+}
 
 // ===== BATTLE CONTAINER =====
 .battle-container {
@@ -37,8 +39,13 @@
   border-radius: 10px;
   transition: background 0.2s;
 
-  &:hover { background: rgba(255,255,255,0.05); }
-  &.red { flex-direction: row-reverse; }
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &.red {
+    flex-direction: row-reverse;
+  }
 }
 
 .player-avatar {
@@ -57,6 +64,7 @@
     border: 2px solid #60a5fa;
     box-shadow: 0 0 16px #3b82f660;
   }
+
   &.red {
     background: linear-gradient(135deg, #7f1d1d, #dc2626);
     border: 2px solid #f87171;
@@ -68,7 +76,10 @@
   display: flex;
   flex-direction: column;
   text-align: left;
-  &.right { text-align: right; }
+
+  &.right {
+    text-align: right;
+  }
 }
 
 .player-name {
@@ -149,13 +160,28 @@
   cursor: pointer;
   transition: all 0.2s;
 
-  &:hover { border-color: #60a5fa; color: white; }
-  &.saved { border-color: #22c55e; color: #22c55e; background: #052e16; }
+  &:hover {
+    border-color: #60a5fa;
+    color: white;
+  }
+
+  &.saved {
+    border-color: #22c55e;
+    color: #22c55e;
+    background: #052e16;
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
 }
 
 // ===== MAIN =====
@@ -164,6 +190,8 @@
   grid-template-columns: 250px 1fr 250px;
   gap: 8px;
   align-items: start;
+  height: 683px;
+  overflow: hidden;
 }
 
 // ===== PICK COLUMNS =====
@@ -196,15 +224,18 @@
   &.blue {
     background: rgba(30, 58, 138, 0.3);
     border: 1px solid #1e3a8a;
+
     &.active {
       border-color: #60a5fa;
       box-shadow: 0 0 12px #3b82f640, inset 0 0 12px #1e3a8a40;
       animation: glow-blue 1.5s infinite;
     }
   }
+
   &.red {
     background: rgba(127, 29, 29, 0.3);
     border: 1px solid #7f1d1d;
+
     &.active {
       border-color: #f87171;
       box-shadow: 0 0 12px #f8717140, inset 0 0 12px #7f1d1d40;
@@ -223,8 +254,9 @@
 .pick-name {
   position: absolute;
   bottom: 0;
-  left: 0; right: 0;
-  background: linear-gradient(0deg, rgba(0,0,0,0.8), transparent);
+  left: 0;
+  right: 0;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.8), transparent);
   font-size: 16px;
   font-weight: 600;
   text-align: center;
@@ -243,12 +275,27 @@
 }
 
 @keyframes glow-blue {
-  0%, 100% { box-shadow: 0 0 12px #3b82f640; }
-  50% { box-shadow: 0 0 36px #3b83f6ef; }
+
+  0%,
+  100% {
+    box-shadow: 0 0 12px #3b82f640;
+  }
+
+  50% {
+    box-shadow: 0 0 36px #3b83f6ef;
+  }
 }
+
 @keyframes glow-red {
-  0%, 100% { box-shadow: 0 0 12px #f8717140; }
-  50% { box-shadow: 0 0 36px #f87171d8; }
+
+  0%,
+  100% {
+    box-shadow: 0 0 12px #f8717140;
+  }
+
+  50% {
+    box-shadow: 0 0 36px #f87171d8;
+  }
 }
 
 // ===== CENTER =====
@@ -256,6 +303,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  height: 100%;
+  overflow: hidden;
 }
 
 // ===== BAN ROW =====
@@ -283,8 +332,13 @@
   text-transform: uppercase;
   letter-spacing: 0.15em;
 
-  &.blue { color: #60a5fa; }
-  &.red { color: #f87171; }
+  &.blue {
+    color: #60a5fa;
+  }
+
+  &.red {
+    color: #f87171;
+  }
 }
 
 .ban-slots {
@@ -305,12 +359,21 @@
   &.blue {
     background: rgba(30, 58, 138, 0.2);
     border: 1px solid #1e3a5f;
-    &.active { border-color: #60a5fa; animation: glow-blue 1s infinite; }
+
+    &.active {
+      border-color: #60a5fa;
+      animation: glow-blue 1s infinite;
+    }
   }
+
   &.red {
     background: rgba(127, 29, 29, 0.2);
     border: 1px solid #4c1d1d;
-    &.active { border-color: #f87171; animation: glow-red 1s infinite; }
+
+    &.active {
+      border-color: #f87171;
+      animation: glow-red 1s infinite;
+    }
   }
 }
 
@@ -358,7 +421,11 @@
   color: #475569;
   transition: all 0.2s;
 
-  &:hover { border-color: #60a5fa; color: white; }
+  &:hover {
+    border-color: #60a5fa;
+    color: white;
+  }
+
   &.active {
     border-color: #60a5fa;
     background: #1e3a5f;
@@ -378,8 +445,13 @@
   color: white;
   outline: none;
 
-  &::placeholder { color: #475569; }
-  &:focus { border-color: #60a5fa; }
+  &::placeholder {
+    color: #475569;
+  }
+
+  &:focus {
+    border-color: #60a5fa;
+  }
 }
 
 // ===== RESONATOR GRID =====
@@ -387,6 +459,18 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+
+  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: #1e3a5f;
+    border-radius: 3px;
+    &:hover { background: #60a5fa; }
+  }
+  scrollbar-width: thin;
+  scrollbar-color: #1e3a5f transparent;
 }
 
 .resonator-card {
@@ -413,17 +497,27 @@
     box-shadow: 0 0 14px #3b82f680, 0 0 4px #60a5fa inset;
     transform: translateY(-3px) scale(1.05);
     z-index: 1;
-    .resonator-img { filter: brightness(1.15); }
+
+    .resonator-img {
+      filter: brightness(1.15);
+    }
   }
 
-  &.disabled, &:disabled {
+  &.disabled,
+  &:disabled {
     cursor: not-allowed;
-    .resonator-img { filter: grayscale(100%) brightness(0.35); }
+
+    .resonator-img {
+      filter: grayscale(100%) brightness(0.35);
+    }
+
     border-color: #0f172a;
   }
 
   &.picked {
-    .resonator-img { filter: grayscale(80%) brightness(0.4); }
+    .resonator-img {
+      filter: grayscale(80%) brightness(0.4);
+    }
   }
 }
 
@@ -452,7 +546,7 @@
   align-items: center;
   gap: 8px;
   padding: 32px 56px;
-  background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(76,29,29,0.95));
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(76, 29, 29, 0.95));
   border: 2px solid #f87171;
   border-radius: 20px;
   box-shadow: 0 0 60px #f8717160, 0 0 120px #f8717130;
@@ -474,6 +568,42 @@
 }
 
 @keyframes ban-alert-in {
-  from { opacity: 0; transform: scale(0.8); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// ===== UNDO BUTTON =====
+.undo-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #1e293b;
+  background: #0f172a;
+  color: #334155;
+  cursor: not-allowed;
+  transition: all 0.2s;
+
+  &.undo-active {
+    border-color: #f97316;
+    color: #f97316;
+    cursor: pointer;
+
+    &:hover {
+      background: #431407;
+      border-color: #fb923c;
+      color: #fb923c;
+      box-shadow: 0 0 8px #f9731640;
+    }
+  }
 }
