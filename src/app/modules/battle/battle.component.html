@@ -306,6 +306,326 @@
     </div>
 
   </div>
+
+  <!-- ===== COST CALCULATOR (shown when done) ===== -->
+  @if (phase() === 'done') {
+    <div class="cost-section">
+      <div class="cost-header">
+        <span class="cost-title">⚔ Cost Calculator</span>
+        <span class="cost-hint">Chọn nhân vật, cung mệnh &amp; vũ khí cho từng team</span>
+      </div>
+
+      <div class="cost-teams">
+
+        <!-- ===== BLUE TEAM ===== -->
+        <div class="cost-team blue">
+          <div class="cost-team-header blue">
+            <span class="cost-team-name">{{ p1name }}</span>
+            <span class="cost-team-tag">Blue Team</span>
+          </div>
+
+          <!-- Team 1 -->
+          <div class="cost-row-label">
+            <span>Team 1</span>
+            <div class="cost-row-budget">
+              <input type="number" class="cost-budget-input blue"
+                [ngModel]="p1Budget()[0]" (ngModelChange)="updateP1Budget(0, +$event)" />
+              <span class="cost-budget-op">−</span>
+              <span class="cost-budget-used">{{ p1Row1Cost() }}</span>
+              <span class="cost-budget-op">=</span>
+              <span class="cost-remaining" [class.negative]="p1Row1Remaining() < 0">{{ p1Row1Remaining() }}</span>
+            </div>
+          </div>
+          <div class="cost-row">
+            @for (i of [0,1,2]; track i) {
+              <div class="cost-slot">
+                <select class="cost-select-char" [ngModel]="p1Slots()[i].char?.id ?? ''" (ngModelChange)="onP1CharChange(i, $event)">
+                  <option value="">— Chọn —</option>
+                  @for (r of p1AvailableFor(i); track r.id) { <option [value]="r.id">{{ r.name }}</option> }
+                </select>
+                @if (p1Slots()[i].char) {
+                  <img [src]="iconOfPick(p1Slots()[i].char!) | resolveImage" class="cost-avatar" [alt]="p1Slots()[i].char!.name" />
+                }
+                @if (p1Slots()[i].char && !isFree(p1Slots()[i].char!)) {
+                  <div class="cost-sub-row">
+                    <label class="cost-sub-label">RC</label>
+                    <select class="cost-select-small" [ngModel]="p1Slots()[i].rc" (ngModelChange)="updateP1Slot(i, 'rc', +$event)">
+                      @for (v of [0,1,2,3,4,5,6]; track v) { <option [value]="v">{{ v }}</option> }
+                    </select>
+                  </div>
+                }
+                @if (p1Slots()[i].char && isFree(p1Slots()[i].char!)) {
+                  <div class="cost-free-badge">FREE</div>
+                }
+                @if (p1Slots()[i].char) {
+                  <div class="cost-sub-row">
+                    <label class="cost-sub-label">WPN</label>
+                    <select class="cost-select-small" [ngModel]="p1Slots()[i].wpn" (ngModelChange)="updateP1Slot(i, 'wpn', +$event)">
+                      @for (v of [0,1,2,3,4,5]; track v) { <option [value]="v">R{{ v }}</option> }
+                    </select>
+                  </div>
+                  @if (isAemeathChar(p1Slots()[i].char!)) {
+                    <div class="cost-sub-row">
+                      <label class="cost-sub-label">Form</label>
+                      <select class="cost-select-small" [ngModel]="p1Slots()[i].form" (ngModelChange)="updateP1Slot(i, 'form', $event)">
+                        <option value="tune_rupture">Tune Rupture</option>
+                        <option value="fusion_burst">Fusion Burst (+0.5)</option>
+                      </select>
+                    </div>
+                  }
+                  <div class="cost-slot-cost">{{ slotCost(p1Slots()[i]) }} cost</div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Team 2 -->
+          <div class="cost-row-label" style="margin-top:10px">
+            <span>Team 2</span>
+            <div class="cost-row-budget">
+              <input type="number" class="cost-budget-input blue"
+                [ngModel]="p1Budget()[1]" (ngModelChange)="updateP1Budget(1, +$event)" />
+              <span class="cost-budget-op">−</span>
+              <span class="cost-budget-used">{{ p1Row2Cost() }}</span>
+              <span class="cost-budget-op">=</span>
+              <span class="cost-remaining" [class.negative]="p1Row2Remaining() < 0">{{ p1Row2Remaining() }}</span>
+            </div>
+          </div>
+          <div class="cost-row">
+            @for (i of [3,4,5]; track i) {
+              <div class="cost-slot">
+                <select class="cost-select-char" [ngModel]="p1Slots()[i].char?.id ?? ''" (ngModelChange)="onP1CharChange(i, $event)">
+                  <option value="">— Chọn —</option>
+                  @for (r of p1AvailableFor(i); track r.id) { <option [value]="r.id">{{ r.name }}</option> }
+                </select>
+                @if (p1Slots()[i].char) {
+                  <img [src]="iconOfPick(p1Slots()[i].char!) | resolveImage" class="cost-avatar" [alt]="p1Slots()[i].char!.name" />
+                }
+                @if (p1Slots()[i].char && !isFree(p1Slots()[i].char!)) {
+                  <div class="cost-sub-row">
+                    <label class="cost-sub-label">RC</label>
+                    <select class="cost-select-small" [ngModel]="p1Slots()[i].rc" (ngModelChange)="updateP1Slot(i, 'rc', +$event)">
+                      @for (v of [0,1,2,3,4,5,6]; track v) { <option [value]="v">{{ v }}</option> }
+                    </select>
+                  </div>
+                }
+                @if (p1Slots()[i].char && isFree(p1Slots()[i].char!)) {
+                  <div class="cost-free-badge">FREE</div>
+                }
+                @if (p1Slots()[i].char) {
+                  <div class="cost-sub-row">
+                    <label class="cost-sub-label">WPN</label>
+                    <select class="cost-select-small" [ngModel]="p1Slots()[i].wpn" (ngModelChange)="updateP1Slot(i, 'wpn', +$event)">
+                      @for (v of [0,1,2,3,4,5]; track v) { <option [value]="v">R{{ v }}</option> }
+                    </select>
+                  </div>
+                  @if (isAemeathChar(p1Slots()[i].char!)) {
+                    <div class="cost-sub-row">
+                      <label class="cost-sub-label">Form</label>
+                      <select class="cost-select-small" [ngModel]="p1Slots()[i].form" (ngModelChange)="updateP1Slot(i, 'form', $event)">
+                        <option value="tune_rupture">Tune Rupture</option>
+                        <option value="fusion_burst">Fusion Burst (+0.5)</option>
+                      </select>
+                    </div>
+                  }
+                  <div class="cost-slot-cost">{{ slotCost(p1Slots()[i]) }} cost</div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Total -->
+          <div class="cost-total-row blue">
+            <span class="cost-total-label">Tổng điểm còn lại</span>
+            <span class="cost-total-value" [class.negative]="p1Total() < 0">{{ p1Total() }}</span>
+          </div>
+        </div>
+
+        <div class="cost-divider">VS</div>
+
+        <!-- ===== RED TEAM ===== -->
+        <div class="cost-team red">
+          <div class="cost-team-header red">
+            <span class="cost-team-name">{{ p2name }}</span>
+            <span class="cost-team-tag">Red Team</span>
+          </div>
+
+          <!-- Team 1 -->
+          <div class="cost-row-label">
+            <span>Team 1</span>
+            <div class="cost-row-budget">
+              <input type="number" class="cost-budget-input red"
+                [ngModel]="p2Budget()[0]" (ngModelChange)="updateP2Budget(0, +$event)" />
+              <span class="cost-budget-op">−</span>
+              <span class="cost-budget-used">{{ p2Row1Cost() }}</span>
+              <span class="cost-budget-op">=</span>
+              <span class="cost-remaining" [class.negative]="p2Row1Remaining() < 0">{{ p2Row1Remaining() }}</span>
+            </div>
+          </div>
+          <div class="cost-row">
+            @for (i of [0,1,2]; track i) {
+              <div class="cost-slot">
+                <select class="cost-select-char" [ngModel]="p2Slots()[i].char?.id ?? ''" (ngModelChange)="onP2CharChange(i, $event)">
+                  <option value="">— Chọn —</option>
+                  @for (r of p2AvailableFor(i); track r.id) { <option [value]="r.id">{{ r.name }}</option> }
+                </select>
+                @if (p2Slots()[i].char) {
+                  <img [src]="iconOfPick(p2Slots()[i].char!) | resolveImage" class="cost-avatar" [alt]="p2Slots()[i].char!.name" />
+                }
+                @if (p2Slots()[i].char && !isFree(p2Slots()[i].char!)) {
+                  <div class="cost-sub-row">
+                    <label class="cost-sub-label">RC</label>
+                    <select class="cost-select-small" [ngModel]="p2Slots()[i].rc" (ngModelChange)="updateP2Slot(i, 'rc', +$event)">
+                      @for (v of [0,1,2,3,4,5,6]; track v) { <option [value]="v">{{ v }}</option> }
+                    </select>
+                  </div>
+                }
+                @if (p2Slots()[i].char && isFree(p2Slots()[i].char!)) {
+                  <div class="cost-free-badge">FREE</div>
+                }
+                @if (p2Slots()[i].char) {
+                  <div class="cost-sub-row">
+                    <label class="cost-sub-label">WPN</label>
+                    <select class="cost-select-small" [ngModel]="p2Slots()[i].wpn" (ngModelChange)="updateP2Slot(i, 'wpn', +$event)">
+                      @for (v of [0,1,2,3,4,5]; track v) { <option [value]="v">R{{ v }}</option> }
+                    </select>
+                  </div>
+                  @if (isAemeathChar(p2Slots()[i].char!)) {
+                    <div class="cost-sub-row">
+                      <label class="cost-sub-label">Form</label>
+                      <select class="cost-select-small" [ngModel]="p2Slots()[i].form" (ngModelChange)="updateP2Slot(i, 'form', $event)">
+                        <option value="tune_rupture">Tune Rupture</option>
+                        <option value="fusion_burst">Fusion Burst (+0.5)</option>
+                      </select>
+                    </div>
+                  }
+                  <div class="cost-slot-cost">{{ slotCost(p2Slots()[i]) }} cost</div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Team 2 -->
+          <div class="cost-row-label" style="margin-top:10px">
+            <span>Team 2</span>
+            <div class="cost-row-budget">
+              <input type="number" class="cost-budget-input red"
+                [ngModel]="p2Budget()[1]" (ngModelChange)="updateP2Budget(1, +$event)" />
+              <span class="cost-budget-op">−</span>
+              <span class="cost-budget-used">{{ p2Row2Cost() }}</span>
+              <span class="cost-budget-op">=</span>
+              <span class="cost-remaining" [class.negative]="p2Row2Remaining() < 0">{{ p2Row2Remaining() }}</span>
+            </div>
+          </div>
+          <div class="cost-row">
+            @for (i of [3,4,5]; track i) {
+              <div class="cost-slot">
+                <select class="cost-select-char" [ngModel]="p2Slots()[i].char?.id ?? ''" (ngModelChange)="onP2CharChange(i, $event)">
+                  <option value="">— Chọn —</option>
+                  @for (r of p2AvailableFor(i); track r.id) { <option [value]="r.id">{{ r.name }}</option> }
+                </select>
+                @if (p2Slots()[i].char) {
+                  <img [src]="iconOfPick(p2Slots()[i].char!) | resolveImage" class="cost-avatar" [alt]="p2Slots()[i].char!.name" />
+                }
+                @if (p2Slots()[i].char && !isFree(p2Slots()[i].char!)) {
+                  <div class="cost-sub-row">
+                    <label class="cost-sub-label">RC</label>
+                    <select class="cost-select-small" [ngModel]="p2Slots()[i].rc" (ngModelChange)="updateP2Slot(i, 'rc', +$event)">
+                      @for (v of [0,1,2,3,4,5,6]; track v) { <option [value]="v">{{ v }}</option> }
+                    </select>
+                  </div>
+                }
+                @if (p2Slots()[i].char && isFree(p2Slots()[i].char!)) {
+                  <div class="cost-free-badge">FREE</div>
+                }
+                @if (p2Slots()[i].char) {
+                  <div class="cost-sub-row">
+                    <label class="cost-sub-label">WPN</label>
+                    <select class="cost-select-small" [ngModel]="p2Slots()[i].wpn" (ngModelChange)="updateP2Slot(i, 'wpn', +$event)">
+                      @for (v of [0,1,2,3,4,5]; track v) { <option [value]="v">R{{ v }}</option> }
+                    </select>
+                  </div>
+                  @if (isAemeathChar(p2Slots()[i].char!)) {
+                    <div class="cost-sub-row">
+                      <label class="cost-sub-label">Form</label>
+                      <select class="cost-select-small" [ngModel]="p2Slots()[i].form" (ngModelChange)="updateP2Slot(i, 'form', $event)">
+                        <option value="tune_rupture">Tune Rupture</option>
+                        <option value="fusion_burst">Fusion Burst (+0.5)</option>
+                      </select>
+                    </div>
+                  }
+                  <div class="cost-slot-cost">{{ slotCost(p2Slots()[i]) }} cost</div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Total -->
+          <div class="cost-total-row red">
+            <span class="cost-total-label">Tổng điểm còn lại</span>
+            <span class="cost-total-value" [class.negative]="p2Total() < 0">{{ p2Total() }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  }
+}
+
+@if (showEditP1()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" (click)="showEditP1.set(false)">
+    <div class="bg-[#0f172a] border border-[#1e3a5f] rounded-2xl p-6 w-80 shadow-2xl" (click)="$event.stopPropagation()">
+      <h3 class="text-lg font-bold mb-4 text-[#60a5fa]">Đổi tên Blue Team</h3>
+      <input class="w-full bg-[#1e293b] border border-[#60a5fa] rounded-lg px-3 py-2 text-white text-sm mb-4 outline-none"
+        [(ngModel)]="editNameP1" (keydown.enter)="confirmEditP1()" autofocus />
+      <div class="flex gap-2 justify-end">
+        <button (click)="showEditP1.set(false)" class="px-4 py-2 rounded-lg text-sm text-[#94a3b8] border border-[#334155] hover:text-white transition-colors">Hủy</button>
+        <button (click)="confirmEditP1()" class="px-4 py-2 rounded-lg text-sm font-semibold bg-[#1d4ed8] hover:bg-[#2563eb] text-white transition-colors">OK</button>
+      </div>
+    </div>
+  </div>
+}
+@if (showEditP2()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" (click)="showEditP2.set(false)">
+    <div class="bg-[#0f172a] border border-[#4c1d1d] rounded-2xl p-6 w-80 shadow-2xl" (click)="$event.stopPropagation()">
+      <h3 class="text-lg font-bold mb-4 text-[#f87171]">Đổi tên Red Team</h3>
+      <input class="w-full bg-[#1e293b] border border-[#f87171] rounded-lg px-3 py-2 text-white text-sm mb-4 outline-none"
+        [(ngModel)]="editNameP2" (keydown.enter)="confirmEditP2()" autofocus />
+      <div class="flex gap-2 justify-end">
+        <button (click)="showEditP2.set(false)" class="px-4 py-2 rounded-lg text-sm text-[#94a3b8] border border-[#334155] hover:text-white transition-colors">Hủy</button>
+        <button (click)="confirmEditP2()" class="px-4 py-2 rounded-lg text-sm font-semibold bg-[#991b1b] hover:bg-[#b91c1c] text-white transition-colors">OK</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- History panel -->
+@if (showHistory()) {
+  <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm" (click)="showHistory.set(false)">
+    <div class="bg-[#0f172a] border border-[#334155] rounded-t-2xl p-6 w-full max-w-2xl max-h-[70vh] overflow-y-auto" (click)="$event.stopPropagation()">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-[#60a5fa]">Lịch sử trận đấu</h3>
+        <button (click)="showHistory.set(false)" class="text-[#475569] hover:text-white">✕</button>
+      </div>
+      @for (s of history(); track s.id) {
+        <div class="bg-[#1e293b] border border-[#334155] rounded-xl p-4 mb-3 text-sm">
+          <div class="flex justify-between mb-2">
+            <span><span class="text-[#60a5fa] font-bold">{{ s.player1Name }}</span> vs <span class="text-[#f87171] font-bold">{{ s.player2Name }}</span></span>
+            <div class="flex gap-2 items-center">
+              <span class="text-[#475569] text-xs">{{ s.date }}</span>
+              <button (click)="deleteSession(s.id)" class="text-[#475569] hover:text-red-400">✕</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-xs text-[#94a3b8]">
+            <div><span class="text-[#60a5fa]">Picks: </span>{{ s.p1picks.join(', ') || '—' }}</div>
+            <div><span class="text-[#f87171]">Picks: </span>{{ s.p2picks.join(', ') || '—' }}</div>
+            <div><span class="text-[#60a5fa]">Bans: </span>{{ s.p1bans.join(', ') || '—' }}</div>
+            <div><span class="text-[#f87171]">Bans: </span>{{ s.p2bans.join(', ') || '—' }}</div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
 }
 
 <!-- Edit name popups -->

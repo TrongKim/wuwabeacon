@@ -8,6 +8,41 @@ import { ResonatorsApi } from '../resonators/api/resonators.api';
 import type { ICharacter } from '../../shared/interfaces';
 import { ECharacterElementType } from '../../shared/enums';
 
+// ===== COST CONFIG =====
+const STANDARD_BANNER_IDS = new Set([1301, 1404, 1302, 1203, 1405, 1503]); // Calcharo, Jiyan, Yinlin, Encore, Jianxin, Verina
+const AEMEATH_ID = 1210;
+
+export function isFreeChar(r: ICharacter): boolean {
+  // Rover, 4★, or standard banner 5★
+  return r.name.includes('Rover') || r.rank === 4 || STANDARD_BANNER_IDS.has(r.id);
+}
+
+export function isAemeath(r: ICharacter): boolean {
+  return r.id === AEMEATH_ID;
+}
+
+export type AemeathForm = 'tune_rupture' | 'fusion_burst';
+
+export interface SlotConfig {
+  char: ICharacter | null;
+  rc: number;          // 0–6, only used if !isFreeChar
+  wpn: number;         // 0–5
+  form: AemeathForm;   // only relevant when char is Aemeath
+}
+
+function emptySlot(): SlotConfig { return { char: null, rc: 0, wpn: 0, form: 'tune_rupture' }; }
+
+export function calcSlotCost(slot: SlotConfig): number {
+  if (!slot.char) return 0;
+  const rcCost = isFreeChar(slot.char) ? 0 : (slot.rc + 1);
+  const formBonus = isAemeath(slot.char) && slot.form === 'fusion_burst' ? 0 : 0.5;
+  return rcCost + slot.wpn + formBonus;
+}
+
+export function calcRowCost(slots: SlotConfig[]): number {
+  return slots.reduce((sum, s) => sum + calcSlotCost(s), 0);
+}
+
 @Pipe({ name: 'resolveImage', standalone: true })
 export class ResolveImagePipe implements PipeTransform {
   transform(value: string | null | undefined): string {
@@ -417,6 +452,128 @@ export class BattleComponent implements OnInit, OnDestroy {
   iconOfPick(r: ICharacter): string {
     if (r.name.includes('Rover')) return '/ban-pick/Rover.jpg';
     return '/ban-pick/' + r.name.replace(':', '') + '.jpg';
+  }
+
+  // ===== COST CALCULATOR =====
+  // Row 1 = 3 slots [0,1,2], Row 2 = 3 slots [3,4,5]
+  p1Slots = signal<SlotConfig[]>([0,1,2,3,4,5].map(() => emptySlot()));
+  p2Slots = signal<SlotConfig[]>([0,1,2,3,4,5].map(() => emptySlot()));
+
+  // Budget per row: index 0 = team1 row, index 1 = team2 row
+  p1Budget = signal<[number, number]>([6000, 6000]);
+  p2Budget = signal<[number, number]>([6000, 6000]);
+
+  p1Row1 = computed(() => this.p1Slots().slice(0, 3));
+  p1Row2 = computed(() => this.p1Slots().slice(3, 6));
+  p2Row1 = computed(() => this.p2Slots().slice(0, 3));
+  p2Row2 = computed(() => this.p2Slots().slice(3, 6));
+
+  p1Row1Cost = computed(() => calcRowCost(this.p1Row1()) * 1000);
+  p1Row2Cost = computed(() => calcRowCost(this.p1Row2()) * 1000);
+  p2Row1Cost = computed(() => calcRowCost(this.p2Row1()) * 1000);
+  p2Row2Cost = computed(() => calcRowCost(this.p2Row2()) * 1000);
+
+  p1Row1Remaining = computed(() => this.p1Budget()[0] - this.p1Row1Cost());
+  p1Row2Remaining = computed(() => this.p1Budget()[1] - this.p1Row2Cost());
+  p2Row1Remaining = computed(() => this.p2Budget()[0] - this.p2Row1Cost());
+  p2Row2Remaining = computed(() => this.p2Budget()[1] - this.p2Row2Cost());
+
+  p1Total = computed(() => this.p1Row1Remaining() + this.p1Row2Remaining());
+  p2Total = computed(() => this.p2Row1Remaining() + this.p2Row2Remaining());
+
+  updateP1Budget(rowIdx: 0 | 1, val: number): void {
+    const b = this.p1Budget();
+    this.p1Budget.set(rowIdx === 0 ? [val, b[1]] : [b[0], val]);
+  }
+
+  updateP2Budget(rowIdx: 0 | 1, val: number): void {
+    const b = this.p2Budget();
+    this.p2Budget.set(rowIdx === 0 ? [val, b[1]] : [b[0], val]);
+  }
+
+  // Chars already used in row1 — cannot be reselected in row2
+  p1Row1Ids = computed(() => new Set(this.p1Row1().map(s => s.char?.id).filter(Boolean) as number[]));
+  p1Row2Ids = computed(() => new Set(this.p1Row2().map(s => s.char?.id).filter(Boolean) as number[]));
+  p2Row1Ids = computed(() => new Set(this.p2Row1().map(s => s.char?.id).filter(Boolean) as number[]));
+  p2Row2Ids = computed(() => new Set(this.p2Row2().map(s => s.char?.id).filter(Boolean) as number[]));
+
+  // Available options for each slot (no duplicate within team, row constraint)
+  p1AvailableFor(slotIndex: number): ICharacter[] {
+    const picks = this.p1picks();
+    const isRow2 = slotIndex >= 3;
+    const takenInOtherRow = isRow2 ? this.p1Row1Ids() : this.p1Row2Ids();
+    const takenInSameRow = this.p1Slots()
+      .slice(isRow2 ? 3 : 0, isRow2 ? 6 : 3)
+      .filter((_, i) => i !== (slotIndex % 3))
+      .map(s => s.char?.id)
+      .filter(Boolean) as number[];
+
+    return picks.filter(r => {
+      if (takenInOtherRow.has(r.id)) return false;
+      if (takenInSameRow.includes(r.id)) return false;
+      return true;
+    });
+  }
+
+  p2AvailableFor(slotIndex: number): ICharacter[] {
+    const picks = this.p2picks();
+    const isRow2 = slotIndex >= 3;
+    const takenInOtherRow = isRow2 ? this.p2Row1Ids() : this.p2Row2Ids();
+    const takenInSameRow = this.p2Slots()
+      .slice(isRow2 ? 3 : 0, isRow2 ? 6 : 3)
+      .filter((_, i) => i !== (slotIndex % 3))
+      .map(s => s.char?.id)
+      .filter(Boolean) as number[];
+
+    return picks.filter(r => {
+      if (takenInOtherRow.has(r.id)) return false;
+      if (takenInSameRow.includes(r.id)) return false;
+      return true;
+    });
+  }
+
+  updateP1Slot(index: number, field: keyof SlotConfig, value: ICharacter | number | string | null): void {
+    const slots = [...this.p1Slots()];
+    const slot = { ...slots[index] };
+    if (field === 'char') {
+      slot.char = value as ICharacter | null;
+      slot.rc = 0;
+      slot.wpn = 0;
+      slot.form = 'tune_rupture';
+    } else {
+      (slot as any)[field] = value;
+    }
+    slots[index] = slot;
+    this.p1Slots.set(slots);
+  }
+
+  updateP2Slot(index: number, field: keyof SlotConfig, value: ICharacter | number | string | null): void {
+    const slots = [...this.p2Slots()];
+    const slot = { ...slots[index] };
+    if (field === 'char') {
+      slot.char = value as ICharacter | null;
+      slot.rc = 0;
+      slot.wpn = 0;
+      slot.form = 'tune_rupture';
+    } else {
+      (slot as any)[field] = value;
+    }
+    slots[index] = slot;
+    this.p2Slots.set(slots);
+  }
+
+  isFree(r: ICharacter): boolean { return isFreeChar(r); }
+  isAemeathChar(r: ICharacter): boolean { return isAemeath(r); }
+  slotCost(s: SlotConfig): number { return calcSlotCost(s); }
+
+  onP1CharChange(index: number, charId: string): void {
+    const char = charId ? (this.p1picks().find(r => r.id === +charId) ?? null) : null;
+    this.updateP1Slot(index, 'char', char);
+  }
+
+  onP2CharChange(index: number, charId: string): void {
+    const char = charId ? (this.p2picks().find(r => r.id === +charId) ?? null) : null;
+    this.updateP2Slot(index, 'char', char);
   }
 
 
