@@ -364,15 +364,10 @@
                       @for (v of [0,1,2,3,4,5]; track v) { <option [value]="v">R{{ v }}</option> }
                     </select>
                   </div>
-                  @if (isAemeathChar(p1Slots()[i].char!)) {
-                    <div class="cost-sub-row">
-                      <label class="cost-sub-label">Form</label>
-                      <select class="cost-select-small" [ngModel]="p1Slots()[i].form" (ngModelChange)="updateP1Slot(i, 'form', $event)">
-                        <option value="tune_rupture">Tune Rupture</option>
-                        <option value="fusion_burst">Fusion Burst (+0.5)</option>
-                      </select>
-                    </div>
-                  }
+                  <label class="cost-buff-row">
+                    <input type="checkbox" [ngModel]="p1Slots()[i].buff" (ngModelChange)="updateP1Slot(i, 'buff', $event)" />
+                    <span>Buff +0.5</span>
+                  </label>
                   <div class="cost-slot-cost">{{ slotCost(p1Slots()[i]) }} cost</div>
                 }
               </div>
@@ -419,15 +414,10 @@
                       @for (v of [0,1,2,3,4,5]; track v) { <option [value]="v">R{{ v }}</option> }
                     </select>
                   </div>
-                  @if (isAemeathChar(p1Slots()[i].char!)) {
-                    <div class="cost-sub-row">
-                      <label class="cost-sub-label">Form</label>
-                      <select class="cost-select-small" [ngModel]="p1Slots()[i].form" (ngModelChange)="updateP1Slot(i, 'form', $event)">
-                        <option value="tune_rupture">Tune Rupture</option>
-                        <option value="fusion_burst">Fusion Burst (+0.5)</option>
-                      </select>
-                    </div>
-                  }
+                  <label class="cost-buff-row">
+                    <input type="checkbox" [ngModel]="p1Slots()[i].buff" (ngModelChange)="updateP1Slot(i, 'buff', $event)" />
+                    <span>Buff +0.5</span>
+                  </label>
                   <div class="cost-slot-cost">{{ slotCost(p1Slots()[i]) }} cost</div>
                 }
               </div>
@@ -490,15 +480,10 @@
                       @for (v of [0,1,2,3,4,5]; track v) { <option [value]="v">R{{ v }}</option> }
                     </select>
                   </div>
-                  @if (isAemeathChar(p2Slots()[i].char!)) {
-                    <div class="cost-sub-row">
-                      <label class="cost-sub-label">Form</label>
-                      <select class="cost-select-small" [ngModel]="p2Slots()[i].form" (ngModelChange)="updateP2Slot(i, 'form', $event)">
-                        <option value="tune_rupture">Tune Rupture</option>
-                        <option value="fusion_burst">Fusion Burst (+0.5)</option>
-                      </select>
-                    </div>
-                  }
+                  <label class="cost-buff-row">
+                    <input type="checkbox" [ngModel]="p2Slots()[i].buff" (ngModelChange)="updateP2Slot(i, 'buff', $event)" />
+                    <span>Buff +0.5</span>
+                  </label>
                   <div class="cost-slot-cost">{{ slotCost(p2Slots()[i]) }} cost</div>
                 }
               </div>
@@ -545,15 +530,10 @@
                       @for (v of [0,1,2,3,4,5]; track v) { <option [value]="v">R{{ v }}</option> }
                     </select>
                   </div>
-                  @if (isAemeathChar(p2Slots()[i].char!)) {
-                    <div class="cost-sub-row">
-                      <label class="cost-sub-label">Form</label>
-                      <select class="cost-select-small" [ngModel]="p2Slots()[i].form" (ngModelChange)="updateP2Slot(i, 'form', $event)">
-                        <option value="tune_rupture">Tune Rupture</option>
-                        <option value="fusion_burst">Fusion Burst (+0.5)</option>
-                      </select>
-                    </div>
-                  }
+                  <label class="cost-buff-row">
+                    <input type="checkbox" [ngModel]="p2Slots()[i].buff" (ngModelChange)="updateP2Slot(i, 'buff', $event)" />
+                    <span>Buff +0.5</span>
+                  </label>
                   <div class="cost-slot-cost">{{ slotCost(p2Slots()[i]) }} cost</div>
                 }
               </div>
@@ -602,84 +582,132 @@
 <!-- History panel -->
 @if (showHistory()) {
   <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm" (click)="showHistory.set(false)">
-    <div class="bg-[#0f172a] border border-[#334155] rounded-t-2xl p-6 w-full max-w-2xl max-h-[70vh] overflow-y-auto" (click)="$event.stopPropagation()">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="font-bold text-[#60a5fa]">Lịch sử trận đấu</h3>
-        <button (click)="showHistory.set(false)" class="text-[#475569] hover:text-white">✕</button>
+    <div class="history-panel" (click)="$event.stopPropagation()">
+      <div class="flex justify-between items-center mb-5">
+        <h3 class="font-bold text-[#60a5fa] text-base">Lịch sử trận đấu ({{ history().length }})</h3>
+        <button (click)="showHistory.set(false)" class="text-[#475569] hover:text-white text-lg leading-none">✕</button>
       </div>
+
       @for (s of history(); track s.id) {
-        <div class="bg-[#1e293b] border border-[#334155] rounded-xl p-4 mb-3 text-sm">
-          <div class="flex justify-between mb-2">
-            <span><span class="text-[#60a5fa] font-bold">{{ s.player1Name }}</span> vs <span class="text-[#f87171] font-bold">{{ s.player2Name }}</span></span>
-            <div class="flex gap-2 items-center">
+        <div class="history-card">
+
+          <!-- Header -->
+          <div class="history-card-header">
+            <div class="flex items-center gap-2">
+              <span class="history-player blue">{{ s.player1Name }}</span>
+              <span class="text-[#475569] text-xs font-bold">VS</span>
+              <span class="history-player red">{{ s.player2Name }}</span>
+            </div>
+            <div class="flex items-center gap-3">
               <span class="text-[#475569] text-xs">{{ s.date }}</span>
-              <button (click)="deleteSession(s.id)" class="text-[#475569] hover:text-red-400">✕</button>
+              <button (click)="deleteSession(s.id)" class="text-[#475569] hover:text-red-400 text-sm leading-none">✕</button>
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-2 text-xs text-[#94a3b8]">
-            <div><span class="text-[#60a5fa]">Picks: </span>{{ s.p1picks.join(', ') || '—' }}</div>
-            <div><span class="text-[#f87171]">Picks: </span>{{ s.p2picks.join(', ') || '—' }}</div>
-            <div><span class="text-[#60a5fa]">Bans: </span>{{ s.p1bans.join(', ') || '—' }}</div>
-            <div><span class="text-[#f87171]">Bans: </span>{{ s.p2bans.join(', ') || '—' }}</div>
+
+          <!-- Picks & Bans -->
+          <div class="history-picks-row">
+            <div class="history-side blue">
+              <div class="history-label blue">Picks</div>
+              <div class="history-names">{{ s.p1picks.join(', ') || '—' }}</div>
+              <div class="history-label blue mt-1">Bans</div>
+              <div class="history-names">{{ s.p1bans.join(', ') || '—' }}</div>
+            </div>
+            <div class="history-side red">
+              <div class="history-label red">Picks</div>
+              <div class="history-names">{{ s.p2picks.join(', ') || '—' }}</div>
+              <div class="history-label red mt-1">Bans</div>
+              <div class="history-names">{{ s.p2bans.join(', ') || '—' }}</div>
+            </div>
           </div>
+
+          <!-- Cost detail -->
+          @if (s.p1Slots && s.p1Slots.length) {
+            <div class="history-cost-section">
+              <div class="history-cost-title">⚔ Cost Calculator</div>
+
+              <div class="history-cost-teams">
+
+                <!-- Blue cost -->
+                <div class="history-cost-side blue">
+                  <div class="history-cost-side-name blue">{{ s.player1Name }}</div>
+
+                  @for (rowLabel of ['Team 1','Team 2']; track $index) {
+                    <div class="history-cost-row-label">{{ rowLabel }}</div>
+                    <div class="history-slots-row">
+                      @for (slot of s.p1Slots.slice($index * 3, $index * 3 + 3); track $index) {
+                        <div class="history-slot">
+                          @if (slot) {
+                            <div class="history-slot-name">{{ slot.charName }}</div>
+                            <div class="history-slot-meta">
+                              RC{{ slot.rc }} · R{{ slot.wpn }}
+                              @if (slot.buff) { <span class="text-[#fbbf24]"> · Buff</span> }
+                            </div>
+                            <div class="history-slot-cost">{{ slot.cost }} cost</div>
+                          } @else {
+                            <div class="history-slot-empty">—</div>
+                          }
+                        </div>
+                      }
+                    </div>
+                    <div class="history-budget-row">
+                      <span class="text-[#475569]">Budget {{ $index === 0 ? s.p1Budget[0] : s.p1Budget[1] }}</span>
+                      <span class="text-[#475569]">→</span>
+                      <span class="history-remaining" [class.neg]="($index === 0 ? s.p1Row1Remaining : s.p1Row2Remaining) < 0">
+                        {{ $index === 0 ? s.p1Row1Remaining : s.p1Row2Remaining }}
+                      </span>
+                    </div>
+                  }
+
+                  <div class="history-total blue">
+                    Tổng: <strong>{{ s.p1Total }}</strong>
+                  </div>
+                </div>
+
+                <!-- Red cost -->
+                <div class="history-cost-side red">
+                  <div class="history-cost-side-name red">{{ s.player2Name }}</div>
+
+                  @for (rowLabel of ['Team 1','Team 2']; track $index) {
+                    <div class="history-cost-row-label">{{ rowLabel }}</div>
+                    <div class="history-slots-row">
+                      @for (slot of s.p2Slots.slice($index * 3, $index * 3 + 3); track $index) {
+                        <div class="history-slot">
+                          @if (slot) {
+                            <div class="history-slot-name">{{ slot.charName }}</div>
+                            <div class="history-slot-meta">
+                              RC{{ slot.rc }} · R{{ slot.wpn }}
+                              @if (slot.buff) { <span class="text-[#fbbf24]"> · Buff</span> }
+                            </div>
+                            <div class="history-slot-cost">{{ slot.cost }} cost</div>
+                          } @else {
+                            <div class="history-slot-empty">—</div>
+                          }
+                        </div>
+                      }
+                    </div>
+                    <div class="history-budget-row">
+                      <span class="text-[#475569]">Budget {{ $index === 0 ? s.p2Budget[0] : s.p2Budget[1] }}</span>
+                      <span class="text-[#475569]">→</span>
+                      <span class="history-remaining" [class.neg]="($index === 0 ? s.p2Row1Remaining : s.p2Row2Remaining) < 0">
+                        {{ $index === 0 ? s.p2Row1Remaining : s.p2Row2Remaining }}
+                      </span>
+                    </div>
+                  }
+
+                  <div class="history-total red">
+                    Tổng: <strong>{{ s.p2Total }}</strong>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          }
+
         </div>
       }
-    </div>
-  </div>
-}
 
-<!-- Edit name popups -->
-@if (showEditP1()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" (click)="showEditP1.set(false)">
-    <div class="bg-[#0f172a] border border-[#1e3a5f] rounded-2xl p-6 w-80 shadow-2xl" (click)="$event.stopPropagation()">
-      <h3 class="text-lg font-bold mb-4 text-[#60a5fa]">Đổi tên Blue Team</h3>
-      <input class="w-full bg-[#1e293b] border border-[#60a5fa] rounded-lg px-3 py-2 text-white text-sm mb-4 outline-none"
-        [(ngModel)]="editNameP1" (keydown.enter)="confirmEditP1()" autofocus />
-      <div class="flex gap-2 justify-end">
-        <button (click)="showEditP1.set(false)" class="px-4 py-2 rounded-lg text-sm text-[#94a3b8] border border-[#334155] hover:text-white transition-colors">Hủy</button>
-        <button (click)="confirmEditP1()" class="px-4 py-2 rounded-lg text-sm font-semibold bg-[#1d4ed8] hover:bg-[#2563eb] text-white transition-colors">OK</button>
-      </div>
-    </div>
-  </div>
-}
-@if (showEditP2()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" (click)="showEditP2.set(false)">
-    <div class="bg-[#0f172a] border border-[#4c1d1d] rounded-2xl p-6 w-80 shadow-2xl" (click)="$event.stopPropagation()">
-      <h3 class="text-lg font-bold mb-4 text-[#f87171]">Đổi tên Red Team</h3>
-      <input class="w-full bg-[#1e293b] border border-[#f87171] rounded-lg px-3 py-2 text-white text-sm mb-4 outline-none"
-        [(ngModel)]="editNameP2" (keydown.enter)="confirmEditP2()" autofocus />
-      <div class="flex gap-2 justify-end">
-        <button (click)="showEditP2.set(false)" class="px-4 py-2 rounded-lg text-sm text-[#94a3b8] border border-[#334155] hover:text-white transition-colors">Hủy</button>
-        <button (click)="confirmEditP2()" class="px-4 py-2 rounded-lg text-sm font-semibold bg-[#991b1b] hover:bg-[#b91c1c] text-white transition-colors">OK</button>
-      </div>
-    </div>
-  </div>
-}
-
-<!-- History panel -->
-@if (showHistory()) {
-  <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm" (click)="showHistory.set(false)">
-    <div class="bg-[#0f172a] border border-[#334155] rounded-t-2xl p-6 w-full max-w-2xl max-h-[70vh] overflow-y-auto" (click)="$event.stopPropagation()">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="font-bold text-[#60a5fa]">Lịch sử trận đấu</h3>
-        <button (click)="showHistory.set(false)" class="text-[#475569] hover:text-white">✕</button>
-      </div>
-      @for (s of history(); track s.id) {
-        <div class="bg-[#1e293b] border border-[#334155] rounded-xl p-4 mb-3 text-sm">
-          <div class="flex justify-between mb-2">
-            <span><span class="text-[#60a5fa] font-bold">{{ s.player1Name }}</span> vs <span class="text-[#f87171] font-bold">{{ s.player2Name }}</span></span>
-            <div class="flex gap-2 items-center">
-              <span class="text-[#475569] text-xs">{{ s.date }}</span>
-              <button (click)="deleteSession(s.id)" class="text-[#475569] hover:text-red-400">✕</button>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-2 text-xs text-[#94a3b8]">
-            <div><span class="text-[#60a5fa]">Picks: </span>{{ s.p1picks.join(', ') || '—' }}</div>
-            <div><span class="text-[#f87171]">Picks: </span>{{ s.p2picks.join(', ') || '—' }}</div>
-            <div><span class="text-[#60a5fa]">Bans: </span>{{ s.p1bans.join(', ') || '—' }}</div>
-            <div><span class="text-[#f87171]">Bans: </span>{{ s.p2bans.join(', ') || '—' }}</div>
-          </div>
-        </div>
+      @if (history().length === 0) {
+        <div class="text-center text-[#334155] py-8 text-sm">Chưa có trận nào được lưu</div>
       }
     </div>
   </div>

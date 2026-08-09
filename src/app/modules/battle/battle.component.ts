@@ -10,33 +10,25 @@ import { ECharacterElementType } from '../../shared/enums';
 
 // ===== COST CONFIG =====
 const STANDARD_BANNER_IDS = new Set([1301, 1404, 1302, 1203, 1405, 1503]); // Calcharo, Jiyan, Yinlin, Encore, Jianxin, Verina
-const AEMEATH_ID = 1210;
 
 export function isFreeChar(r: ICharacter): boolean {
-  // Rover, 4★, or standard banner 5★
   return r.name.includes('Rover') || r.rank === 4 || STANDARD_BANNER_IDS.has(r.id);
 }
 
-export function isAemeath(r: ICharacter): boolean {
-  return r.id === AEMEATH_ID;
-}
-
-export type AemeathForm = 'tune_rupture' | 'fusion_burst';
-
 export interface SlotConfig {
   char: ICharacter | null;
-  rc: number;          // 0–6, only used if !isFreeChar
-  wpn: number;         // 0–5
-  form: AemeathForm;   // only relevant when char is Aemeath
+  rc: number;    // 0–6, only used if !isFreeChar
+  wpn: number;   // 0–5
+  buff: boolean; // +0.5 cost bonus
 }
 
-function emptySlot(): SlotConfig { return { char: null, rc: 0, wpn: 0, form: 'tune_rupture' }; }
+function emptySlot(): SlotConfig { return { char: null, rc: 0, wpn: 0, buff: false }; }
 
 export function calcSlotCost(slot: SlotConfig): number {
   if (!slot.char) return 0;
   const rcCost = isFreeChar(slot.char) ? 0 : (slot.rc + 1);
-  const formBonus = isAemeath(slot.char) && slot.form === 'fusion_burst' ? 0 : 0.5;
-  return rcCost + slot.wpn + formBonus;
+  const buffBonus = slot.buff ? 0.5 : 0;
+  return rcCost + slot.wpn + buffBonus;
 }
 
 export function calcRowCost(slots: SlotConfig[]): number {
@@ -95,6 +87,14 @@ interface BattleSnapshot {
   phasePickCount: number;
 }
 
+interface SavedSlot {
+  charName: string;
+  rc: number;
+  wpn: number;
+  buff: boolean;
+  cost: number;
+}
+
 interface BattleSession {
   id: string;
   date: string;
@@ -104,6 +104,17 @@ interface BattleSession {
   p2picks: string[];
   p1bans: string[];
   p2bans: string[];
+  // Cost calculator data
+  p1Slots: (SavedSlot | null)[];
+  p2Slots: (SavedSlot | null)[];
+  p1Budget: [number, number];
+  p2Budget: [number, number];
+  p1Row1Remaining: number;
+  p1Row2Remaining: number;
+  p2Row1Remaining: number;
+  p2Row2Remaining: number;
+  p1Total: number;
+  p2Total: number;
 }
 
 const STORAGE_KEY = 'battle_history';
@@ -418,6 +429,9 @@ export class BattleComponent implements OnInit, OnDestroy {
 
   // ===== SAVE / DELETE =====
   saveSession(): void {
+    const toSavedSlot = (s: SlotConfig): SavedSlot | null =>
+      s.char ? { charName: s.char.name, rc: s.rc, wpn: s.wpn, buff: s.buff, cost: calcSlotCost(s) } : null;
+
     const session: BattleSession = {
       id: Date.now().toString(),
       date: new Date().toLocaleString('vi-VN'),
@@ -426,6 +440,16 @@ export class BattleComponent implements OnInit, OnDestroy {
       p2picks: this.p2picks().map(r => r.name),
       p1bans:  this.p1bans().map(r => r.name),
       p2bans:  this.p2bans().map(r => r.name),
+      p1Slots: this.p1Slots().map(toSavedSlot),
+      p2Slots: this.p2Slots().map(toSavedSlot),
+      p1Budget: this.p1Budget(),
+      p2Budget: this.p2Budget(),
+      p1Row1Remaining: this.p1Row1Remaining(),
+      p1Row2Remaining: this.p1Row2Remaining(),
+      p2Row1Remaining: this.p2Row1Remaining(),
+      p2Row2Remaining: this.p2Row2Remaining(),
+      p1Total: this.p1Total(),
+      p2Total: this.p2Total(),
     };
     const updated = [session, ...this.history()].slice(0, 20);
     this.history.set(updated);
@@ -539,7 +563,7 @@ export class BattleComponent implements OnInit, OnDestroy {
       slot.char = value as ICharacter | null;
       slot.rc = 0;
       slot.wpn = 0;
-      slot.form = 'tune_rupture';
+      slot.buff = false;
     } else {
       (slot as any)[field] = value;
     }
@@ -554,7 +578,7 @@ export class BattleComponent implements OnInit, OnDestroy {
       slot.char = value as ICharacter | null;
       slot.rc = 0;
       slot.wpn = 0;
-      slot.form = 'tune_rupture';
+      slot.buff = false;
     } else {
       (slot as any)[field] = value;
     }
@@ -563,7 +587,6 @@ export class BattleComponent implements OnInit, OnDestroy {
   }
 
   isFree(r: ICharacter): boolean { return isFreeChar(r); }
-  isAemeathChar(r: ICharacter): boolean { return isAemeath(r); }
   slotCost(s: SlotConfig): number { return calcSlotCost(s); }
 
   onP1CharChange(index: number, charId: string): void {
