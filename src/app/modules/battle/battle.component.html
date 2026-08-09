@@ -89,6 +89,24 @@
       </div>
     </div>
 
+    <!-- Seasonal mode toggle -->
+    <div class="flex items-center gap-3 px-4 py-3 bg-[#0f172a] border border-[#1e293b] rounded-xl">
+      <button
+        (click)="seasonalMode.set(!seasonalMode())"
+        [class]="'relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none ' + (seasonalMode() ? 'bg-[#f59e0b]' : 'bg-[#334155]')"
+      >
+        <span
+          [class]="'absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ' + (seasonalMode() ? 'translate-x-5' : 'translate-x-0')"
+        ></span>
+      </button>
+      <div class="flex flex-col">
+        <span class="text-sm font-semibold" [class]="seasonalMode() ? 'text-[#f59e0b]' : 'text-[#94a3b8]'">
+          Chế độ mùa giải
+        </span>
+        <span class="text-[11px] text-[#475569]">Tính cost theo bảng RC mùa giải (S0–S3)</span>
+      </div>
+    </div>
+
     <!-- History -->
     @if (history().length > 0) {
       <button (click)="showHistory.set(!showHistory())"
@@ -158,10 +176,33 @@
           <div class="pick-slot blue" [class.active]="isP1Turn() && !isBanPhase() && slot === null && p1picks().length === $index">
             @if (slot) {
               <img [src]="iconOf(slot) | resolveImage" [alt]="slot.name" class="pick-img" />
-              <span class="pick-name">{{ slot.name }}</span>
+              <div class="pick-info">
+                <span class="pick-name">{{ slot.name }}</span>
+                @if (seasonalMode()) {
+                  <div class="rc-row">
+                    <select
+                      class="rc-select"
+                      [ngModel]="getRc(1, slot.id)"
+                      (ngModelChange)="setRc(1, slot.id, +$event)"
+                      (click)="$event.stopPropagation()"
+                    >
+                      @for (opt of rcOptions; track opt.value) {
+                        <option [value]="opt.value">{{ opt.label }}</option>
+                      }
+                    </select>
+                    <span class="cost-badge blue">{{ getCost(1, slot) }}</span>
+                  </div>
+                }
+              </div>
             } @else {
               <span class="pick-empty">Pick</span>
             }
+          </div>
+        }
+        @if (seasonalMode() && p1picks().length > 0) {
+          <div class="cost-total blue">
+            <span class="cost-total-label">Total Cost</span>
+            <span class="cost-total-value">{{ p1TotalCost() }}</span>
           </div>
         }
       </div>
@@ -260,10 +301,33 @@
           <div class="pick-slot red" [class.active]="isP2Turn() && !isBanPhase() && slot === null && p2picks().length === $index">
             @if (slot) {
               <img [src]="iconOf(slot) | resolveImage" [alt]="slot.name" class="pick-img" />
-              <span class="pick-name">{{ slot.name }}</span>
+              <div class="pick-info">
+                <span class="pick-name">{{ slot.name }}</span>
+                @if (seasonalMode()) {
+                  <div class="rc-row">
+                    <select
+                      class="rc-select"
+                      [ngModel]="getRc(2, slot.id)"
+                      (ngModelChange)="setRc(2, slot.id, +$event)"
+                      (click)="$event.stopPropagation()"
+                    >
+                      @for (opt of rcOptions; track opt.value) {
+                        <option [value]="opt.value">{{ opt.label }}</option>
+                      }
+                    </select>
+                    <span class="cost-badge red">{{ getCost(2, slot) }}</span>
+                  </div>
+                }
+              </div>
             } @else {
               <span class="pick-empty">Pick</span>
             }
+          </div>
+        }
+        @if (seasonalMode() && p2picks().length > 0) {
+          <div class="cost-total red">
+            <span class="cost-total-label">Total Cost</span>
+            <span class="cost-total-value">{{ p2TotalCost() }}</span>
           </div>
         }
       </div>
