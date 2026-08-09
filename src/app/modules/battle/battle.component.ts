@@ -28,8 +28,10 @@ export function calcSlotCost(slot: SlotConfig, seasonal = false, seasonalCostFn?
   if (!slot.char) return 0;
   let rcCost: number;
   if (seasonal && seasonalCostFn) {
+    // Seasonal mode: always use seasonal table, ignore isFreeChar
     rcCost = seasonalCostFn(slot.char.name, slot.rc);
   } else {
+    // Normal mode: free chars (4★, Rover, standard banner) cost 0 for char
     rcCost = isFreeChar(slot.char) ? 0 : (slot.rc + 1);
   }
   const buffBonus = slot.buff ? 0.5 : 0;
@@ -182,9 +184,8 @@ function normalizeCharName(name: string): string {
 
 function getSeasonalCost(name: string, rc: number): number {
   const key = normalizeCharName(name);
-  // Try normalized key first, then original lowercased
   const costs = SEASONAL_RC_COST[key] ?? SEASONAL_RC_COST[name.toLowerCase()];
-  if (!costs) return 1; // default fallback
+  if (!costs) return 0; // not in seasonal table → 0 cost (4★, Rover, etc.)
   const idx = Math.min(Math.max(rc, 0), 3) as 0 | 1 | 2 | 3;
   return costs[idx];
 }
@@ -706,6 +707,17 @@ export class BattleComponent implements OnInit, OnDestroy {
   }
 
   isFree(r: ICharacter): boolean { return isFreeChar(r); }
+
+  // In seasonal mode, a char is "free" only if ALL their seasonal costs are 0
+  isEffectivelyFree(r: ICharacter): boolean {
+    if (this.seasonalMode()) {
+      const key = r.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const costs = SEASONAL_RC_COST[key] ?? SEASONAL_RC_COST[r.name.toLowerCase()];
+      // Not in table (4★, Rover, etc.) OR all values are 0 → free
+      return !costs || costs.every(c => c === 0);
+    }
+    return isFreeChar(r);
+  }
   slotCost(s: SlotConfig): number {
     return calcSlotCost(s, this.seasonalMode(), getSeasonalCost);
   }

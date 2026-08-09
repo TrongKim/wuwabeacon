@@ -410,7 +410,7 @@
                 @if (p1Slots()[i].char) {
                   <img [src]="iconOfPick(p1Slots()[i].char!) | resolveImage" class="cost-avatar" [alt]="p1Slots()[i].char!.name" />
                 }
-                @if (p1Slots()[i].char && !isFree(p1Slots()[i].char!)) {
+                @if (p1Slots()[i].char && !isEffectivelyFree(p1Slots()[i].char!)) {
                   <div class="cost-sub-row">
                     <label class="cost-sub-label">RC</label>
                     <select class="cost-select-small" [ngModel]="p1Slots()[i].rc" (ngModelChange)="updateP1Slot(i, 'rc', +$event)">
@@ -418,7 +418,7 @@
                     </select>
                   </div>
                 }
-                @if (p1Slots()[i].char && isFree(p1Slots()[i].char!)) {
+                @if (p1Slots()[i].char && isEffectivelyFree(p1Slots()[i].char!)) {
                   <div class="cost-free-badge">FREE</div>
                 }
                 @if (p1Slots()[i].char) {
@@ -460,7 +460,7 @@
                 @if (p1Slots()[i].char) {
                   <img [src]="iconOfPick(p1Slots()[i].char!) | resolveImage" class="cost-avatar" [alt]="p1Slots()[i].char!.name" />
                 }
-                @if (p1Slots()[i].char && !isFree(p1Slots()[i].char!)) {
+                @if (p1Slots()[i].char && !isEffectivelyFree(p1Slots()[i].char!)) {
                   <div class="cost-sub-row">
                     <label class="cost-sub-label">RC</label>
                     <select class="cost-select-small" [ngModel]="p1Slots()[i].rc" (ngModelChange)="updateP1Slot(i, 'rc', +$event)">
@@ -468,7 +468,7 @@
                     </select>
                   </div>
                 }
-                @if (p1Slots()[i].char && isFree(p1Slots()[i].char!)) {
+                @if (p1Slots()[i].char && isEffectivelyFree(p1Slots()[i].char!)) {
                   <div class="cost-free-badge">FREE</div>
                 }
                 @if (p1Slots()[i].char) {
@@ -526,7 +526,7 @@
                 @if (p2Slots()[i].char) {
                   <img [src]="iconOfPick(p2Slots()[i].char!) | resolveImage" class="cost-avatar" [alt]="p2Slots()[i].char!.name" />
                 }
-                @if (p2Slots()[i].char && !isFree(p2Slots()[i].char!)) {
+                @if (p2Slots()[i].char && !isEffectivelyFree(p2Slots()[i].char!)) {
                   <div class="cost-sub-row">
                     <label class="cost-sub-label">RC</label>
                     <select class="cost-select-small" [ngModel]="p2Slots()[i].rc" (ngModelChange)="updateP2Slot(i, 'rc', +$event)">
@@ -534,7 +534,7 @@
                     </select>
                   </div>
                 }
-                @if (p2Slots()[i].char && isFree(p2Slots()[i].char!)) {
+                @if (p2Slots()[i].char && isEffectivelyFree(p2Slots()[i].char!)) {
                   <div class="cost-free-badge">FREE</div>
                 }
                 @if (p2Slots()[i].char) {
@@ -576,7 +576,7 @@
                 @if (p2Slots()[i].char) {
                   <img [src]="iconOfPick(p2Slots()[i].char!) | resolveImage" class="cost-avatar" [alt]="p2Slots()[i].char!.name" />
                 }
-                @if (p2Slots()[i].char && !isFree(p2Slots()[i].char!)) {
+                @if (p2Slots()[i].char && !isEffectivelyFree(p2Slots()[i].char!)) {
                   <div class="cost-sub-row">
                     <label class="cost-sub-label">RC</label>
                     <select class="cost-select-small" [ngModel]="p2Slots()[i].rc" (ngModelChange)="updateP2Slot(i, 'rc', +$event)">
@@ -584,7 +584,7 @@
                     </select>
                   </div>
                 }
-                @if (p2Slots()[i].char && isFree(p2Slots()[i].char!)) {
+                @if (p2Slots()[i].char && isEffectivelyFree(p2Slots()[i].char!)) {
                   <div class="cost-free-badge">FREE</div>
                 }
                 @if (p2Slots()[i].char) {
