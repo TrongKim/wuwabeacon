@@ -24,15 +24,20 @@ export interface SlotConfig {
 
 function emptySlot(): SlotConfig { return { char: null, rc: 0, wpn: 0, buff: false }; }
 
-export function calcSlotCost(slot: SlotConfig): number {
+export function calcSlotCost(slot: SlotConfig, seasonal = false, seasonalCostFn?: (name: string, rc: number) => number): number {
   if (!slot.char) return 0;
-  const rcCost = isFreeChar(slot.char) ? 0 : (slot.rc + 1);
+  let rcCost: number;
+  if (seasonal && seasonalCostFn) {
+    rcCost = seasonalCostFn(slot.char.name, slot.rc);
+  } else {
+    rcCost = isFreeChar(slot.char) ? 0 : (slot.rc + 1);
+  }
   const buffBonus = slot.buff ? 0.5 : 0;
   return rcCost + slot.wpn + buffBonus;
 }
 
-export function calcRowCost(slots: SlotConfig[]): number {
-  return slots.reduce((sum, s) => sum + calcSlotCost(s), 0);
+export function calcRowCost(slots: SlotConfig[], seasonal = false, seasonalCostFn?: (name: string, rc: number) => number): number {
+  return slots.reduce((sum, s) => sum + calcSlotCost(s, seasonal, seasonalCostFn), 0);
 }
 
 @Pipe({ name: 'resolveImage', standalone: true })
@@ -544,7 +549,7 @@ export class BattleComponent implements OnInit, OnDestroy {
   // ===== SAVE / DELETE =====
   saveSession(): void {
     const toSavedSlot = (s: SlotConfig): SavedSlot | null =>
-      s.char ? { charName: s.char.name, rc: s.rc, wpn: s.wpn, buff: s.buff, cost: calcSlotCost(s) } : null;
+      s.char ? { charName: s.char.name, rc: s.rc, wpn: s.wpn, buff: s.buff, cost: calcSlotCost(s, this.seasonalMode(), getSeasonalCost) } : null;
 
     const session: BattleSession = {
       id: Date.now().toString(),
@@ -606,10 +611,10 @@ export class BattleComponent implements OnInit, OnDestroy {
   p2Row1 = computed(() => this.p2Slots().slice(0, 3));
   p2Row2 = computed(() => this.p2Slots().slice(3, 6));
 
-  p1Row1Cost = computed(() => calcRowCost(this.p1Row1()) * 1000);
-  p1Row2Cost = computed(() => calcRowCost(this.p1Row2()) * 1000);
-  p2Row1Cost = computed(() => calcRowCost(this.p2Row1()) * 1000);
-  p2Row2Cost = computed(() => calcRowCost(this.p2Row2()) * 1000);
+  p1Row1Cost = computed(() => calcRowCost(this.p1Row1(), this.seasonalMode(), getSeasonalCost) * 1000);
+  p1Row2Cost = computed(() => calcRowCost(this.p1Row2(), this.seasonalMode(), getSeasonalCost) * 1000);
+  p2Row1Cost = computed(() => calcRowCost(this.p2Row1(), this.seasonalMode(), getSeasonalCost) * 1000);
+  p2Row2Cost = computed(() => calcRowCost(this.p2Row2(), this.seasonalMode(), getSeasonalCost) * 1000);
 
   p1Row1Remaining = computed(() => this.p1Budget()[0] - this.p1Row1Cost());
   p1Row2Remaining = computed(() => this.p1Budget()[1] - this.p1Row2Cost());
@@ -701,7 +706,18 @@ export class BattleComponent implements OnInit, OnDestroy {
   }
 
   isFree(r: ICharacter): boolean { return isFreeChar(r); }
-  slotCost(s: SlotConfig): number { return calcSlotCost(s); }
+  slotCost(s: SlotConfig): number {
+    return calcSlotCost(s, this.seasonalMode(), getSeasonalCost);
+  }
+
+  // RC dropdown options: seasonal = S0-S3 (0-3), normal = RC0-RC6 (0-6)
+  get rcCalcOptions(): number[] {
+    return this.seasonalMode() ? [0, 1, 2, 3] : [0, 1, 2, 3, 4, 5, 6];
+  }
+
+  rcCalcLabel(v: number): string {
+    return this.seasonalMode() ? `S${v}` : `${v}`;
+  }
 
   onP1CharChange(index: number, charId: string): void {
     const char = charId ? (this.p1picks().find(r => r.id === +charId) ?? null) : null;
