@@ -128,7 +128,7 @@ const STORAGE_KEY = 'battle_history';
 // Key: normalized character name (lowercase, no spaces/special chars)
 // Value: [S0, S1, S2, S3]
 const SEASONAL_RC_COST: Record<string, [number, number, number, number]> = {
-  'aemeath':          [1.5, 2.5, 5.5, 7.5],
+  'aemeath':          [1, 2, 5, 7],
   'luukherssen':      [1,   2,   4.5, 6  ],
   'chồngiu':          [1,   2,   4.5, 6  ],
   'chisa':            [1.5, 2,   4.5, 5  ],
