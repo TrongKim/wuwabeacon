@@ -119,6 +119,71 @@ interface BattleSession {
 
 const STORAGE_KEY = 'battle_history';
 
+// ===== SEASONAL RC COST TABLE =====
+// Key: normalized character name (lowercase, no spaces/special chars)
+// Value: [S0, S1, S2, S3]
+const SEASONAL_RC_COST: Record<string, [number, number, number, number]> = {
+  'aemeath':          [1.5, 2.5, 5.5, 7.5],
+  'luukherssen':      [1,   2,   4.5, 6  ],
+  'chồngiu':          [1,   2,   4.5, 6  ],
+  'chisa':            [1.5, 2,   4.5, 5  ],
+  'lupa':             [1,   1.5, 4,   5  ],
+  'mornye':           [1,   2,   3.5, 5  ],
+  'lynae':            [1,   1.5, 3.5, 4  ],
+  'qiuyuan':          [1,   2,   3,   4  ],
+  'galbrena':         [1.5, 3,   4.5, 6.5],
+  'iuno':             [1,   2,   4,   6.5],
+  'augusta':          [1,   2,   4,   6  ],
+  'phrolova':         [1,   2,   4,   6  ],
+  'cartethyia':       [1,   2,   5,   6.5],
+  'ciaccona':         [1,   1.5, 4,   4.5],
+  'zani':             [1,   2,   3.5, 5  ],
+  'cantarella':       [1,   1.5, 2.5, 4  ],
+  'brant':            [1,   2,   3,   5  ],
+  'phoebe':           [1,   1.5, 3,   3.5],
+  'roccia':           [1,   1.5, 2,   2.5],
+  'carlotta':         [1,   2,   4,   5  ],
+  'camellya':         [1,   2,   3.5, 4.5],
+  'xiangliyao':       [1,   1.5, 2,   3  ],
+  'zhezhi':           [1,   1.5, 2,   3  ],
+  'changli':          [1,   2,   4,   5  ],
+  'yinlin':           [1,   1.5, 1.5, 2  ],
+  'jiyan':            [1,   1.5, 2,   3.5],
+  'jianxin':          [0,   0,   0,   0  ],
+  'calcharo':         [0,   0,   0,   0  ],
+  'encore':           [0,   0,   0,   0  ],
+  'lingyang':         [0,   0,   0,   0  ],
+  'verina':           [0,   0,   0.5, 0.5],
+  'shorekeeper':      [1,   1.5, 3,   4  ],
+  'jinhsi':           [1,   2,   3,   3.5],
+  'sigrika':          [1,   3,   4,   6  ],
+  'hiyuki':           [1,   2.5, 5,   7  ],
+  'denia':            [1,   2,   3,   5  ],
+  'lucy':             [1,   2,   4,   6  ],
+  'rebecca':          [1,   2,   3,   4.5],
+  'lucilla':          [1,   2,   3.5, 4  ],
+  'yangyang':         [1.5, 2.5, 5,   6  ],
+  'yangyanggxuanling':[1.5, 2.5, 5,   6  ],
+  'suisui':           [1,   2,   3.5, 4  ],
+  // common names used in DB
+  'xiangli yao':      [1,   1.5, 2,   3  ],
+  'luuk herssen':     [1,   2,   4.5, 6  ],
+  'yangyang: xuanling':[1.5,2.5, 5,   6  ],
+};
+
+function normalizeCharName(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9àáâãèéêìíòóôõùúýăđơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỷỹỵ]/g, '');
+}
+
+function getSeasonalCost(name: string, rc: number): number {
+  const key = normalizeCharName(name);
+  // Try normalized key first, then original lowercased
+  const costs = SEASONAL_RC_COST[key] ?? SEASONAL_RC_COST[name.toLowerCase()];
+  if (!costs) return 1; // default fallback
+  const idx = Math.min(Math.max(rc, 0), 3) as 0 | 1 | 2 | 3;
+  return costs[idx];
+}
+
 @Component({
   selector: 'app-battle',
   standalone: true,
@@ -167,6 +232,55 @@ export class BattleComponent implements OnInit, OnDestroy {
   undoStack: BattleSnapshot[] = [];
   undoCount = signal(0);
   canUndo = computed(() => this.undoCount() > 0);
+
+  // ===== SEASONAL MODE & RC SELECTORS =====
+  seasonalMode = signal(false);
+  // RC level per pick slot: key = character id, value = 0..3
+  p1RcMap = signal<Record<number, number>>({});
+  p2RcMap = signal<Record<number, number>>({});
+
+  rcOptions = [
+    { label: 'S0', value: 0 },
+    { label: 'S1', value: 1 },
+    { label: 'S2', value: 2 },
+    { label: 'S3', value: 3 },
+  ];
+
+  setRc(player: 1 | 2, charId: number, rc: number): void {
+    if (player === 1) {
+      this.p1RcMap.update(m => ({ ...m, [charId]: rc }));
+    } else {
+      this.p2RcMap.update(m => ({ ...m, [charId]: rc }));
+    }
+  }
+
+  getRc(player: 1 | 2, charId: number): number {
+    return player === 1
+      ? (this.p1RcMap()[charId] ?? 0)
+      : (this.p2RcMap()[charId] ?? 0);
+  }
+
+  getCost(player: 1 | 2, char: ICharacter): number {
+    if (!this.seasonalMode()) return 1;
+    const rc = this.getRc(player, char.id);
+    return getSeasonalCost(char.name, rc);
+  }
+
+  p1TotalCost = computed(() => {
+    if (!this.seasonalMode()) return this.p1picks().length;
+    return this.p1picks().reduce((sum, r) => {
+      const rc = this.p1RcMap()[r.id] ?? 0;
+      return sum + getSeasonalCost(r.name, rc);
+    }, 0);
+  });
+
+  p2TotalCost = computed(() => {
+    if (!this.seasonalMode()) return this.p2picks().length;
+    return this.p2picks().reduce((sum, r) => {
+      const rc = this.p2RcMap()[r.id] ?? 0;
+      return sum + getSeasonalCost(r.name, rc);
+    }, 0);
+  });
 
   elements = [
     { code: ECharacterElementType.AERO,     icon: '/elements_icon/Aero.png' },

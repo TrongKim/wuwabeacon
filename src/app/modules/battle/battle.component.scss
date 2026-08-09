@@ -252,18 +252,14 @@
 }
 
 .pick-name {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.8), transparent);
-  font-size: 16px;
+  font-size: 9px;
   font-weight: 600;
-  text-align: center;
-  padding: 4px 2px 2px;
+  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  width: 100%;
+  color: #e2e8f0;
 }
 
 .pick-empty {
@@ -738,6 +734,103 @@
   }
 }
 
+// ===== PICK INFO (seasonal mode) =====
+.pick-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: linear-gradient(0deg, rgba(0,0,0,0.85) 70%, transparent);
+  padding: 4px 4px 3px;
+  gap: 2px;
+}
+
+.rc-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+}
+
+.rc-select {
+  flex: 1;
+  min-width: 0;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 2px;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  text-align: center;
+
+  &:focus { border-color: #f59e0b; }
+
+  option {
+    background: #0f172a;
+    color: white;
+  }
+}
+
+.cost-badge {
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  padding: 1px 4px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &.blue {
+    background: rgba(30, 58, 138, 0.8);
+    color: #93c5fd;
+    border: 1px solid #1e40af;
+  }
+  &.red {
+    background: rgba(127, 29, 29, 0.8);
+    color: #fca5a5;
+    border: 1px solid #7f1d1d;
+  }
+}
+
+// ===== TOTAL COST BAR (draft picks seasonal) =====
+.cost-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  font-size: 11px;
+
+  &.blue {
+    background: rgba(30, 58, 138, 0.25);
+    border: 1px solid #1e3a8a;
+  }
+  &.red {
+    background: rgba(127, 29, 29, 0.25);
+    border: 1px solid #7f1d1d;
+  }
+
+  .cost-total-label {
+    font-size: 9px;
+    color: #64748b;
+  }
+
+  .cost-total-value {
+    font-size: 16px;
+    color: #f59e0b;
+    text-shadow: 0 0 10px #f59e0b80;
+  }
+}
+
+// ===== TOTAL LABEL/VALUE for cost calculator (.cost-total-row context) =====
 .cost-total-label {
   font-size: 11px;
   font-weight: 700;
