@@ -24,12 +24,12 @@ export interface SlotConfig {
 
 function emptySlot(): SlotConfig { return { char: null, rc: 0, wpn: 0, buff: false }; }
 
-export function calcSlotCost(slot: SlotConfig, seasonal = false, seasonalCostFn?: (name: string, rc: number) => number): number {
+export function calcSlotCost(slot: SlotConfig, seasonal = false, seasonalCostFn?: (id: number, rc: number) => number): number {
   if (!slot.char) return 0;
   let rcCost: number;
   if (seasonal && seasonalCostFn) {
     // Seasonal mode: always use seasonal table, ignore isFreeChar
-    rcCost = seasonalCostFn(slot.char.name, slot.rc);
+    rcCost = seasonalCostFn(slot.char.id, slot.rc);
   } else {
     // Normal mode: free chars (4★, Rover, standard banner) cost 0 for char
     rcCost = isFreeChar(slot.char) ? 0 : (slot.rc + 1);
@@ -38,7 +38,7 @@ export function calcSlotCost(slot: SlotConfig, seasonal = false, seasonalCostFn?
   return rcCost + slot.wpn + buffBonus;
 }
 
-export function calcRowCost(slots: SlotConfig[], seasonal = false, seasonalCostFn?: (name: string, rc: number) => number): number {
+export function calcRowCost(slots: SlotConfig[], seasonal = false, seasonalCostFn?: (id: number, rc: number) => number): number {
   return slots.reduce((sum, s) => sum + calcSlotCost(s, seasonal, seasonalCostFn), 0);
 }
 
@@ -127,65 +127,54 @@ interface BattleSession {
 const STORAGE_KEY = 'battle_history';
 
 // ===== SEASONAL RC COST TABLE =====
-// Key: normalized character name (lowercase, no spaces/special chars)
+// Key: resonator id
 // Value: [S0, S1, S2, S3]
-const SEASONAL_RC_COST: Record<string, [number, number, number, number]> = {
-  'aemeath':          [1, 2, 5, 7],
-  'luukherssen':      [1,   2,   4.5, 6  ],
-  'chồngiu':          [1,   2,   4.5, 6  ],
-  'chisa':            [1.5, 2,   4.5, 5  ],
-  'lupa':             [1,   1.5, 4,   5  ],
-  'mornye':           [1,   2,   3.5, 5  ],
-  'lynae':            [1,   1.5, 3.5, 4  ],
-  'qiuyuan':          [1,   2,   3,   4  ],
-  'galbrena':         [1.5, 3,   4.5, 6.5],
-  'iuno':             [1,   2,   4,   6.5],
-  'augusta':          [1,   2,   4,   6  ],
-  'phrolova':         [1,   2,   4,   6  ],
-  'cartethyia':       [1,   2,   5,   6.5],
-  'ciaccona':         [1,   1.5, 4,   4.5],
-  'zani':             [1,   2,   3.5, 5  ],
-  'cantarella':       [1,   1.5, 2.5, 4  ],
-  'brant':            [1,   2,   3,   5  ],
-  'phoebe':           [1,   1.5, 3,   3.5],
-  'roccia':           [1,   1.5, 2,   2.5],
-  'carlotta':         [1,   2,   4,   5  ],
-  'camellya':         [1,   2,   3.5, 4.5],
-  'xiangliyao':       [1,   1.5, 2,   3  ],
-  'zhezhi':           [1,   1.5, 2,   3  ],
-  'changli':          [1,   2,   4,   5  ],
-  'yinlin':           [1,   1.5, 1.5, 2  ],
-  'jiyan':            [1,   1.5, 2,   3.5],
-  'jianxin':          [0,   0,   0,   0  ],
-  'calcharo':         [0,   0,   0,   0  ],
-  'encore':           [0,   0,   0,   0  ],
-  'lingyang':         [0,   0,   0,   0  ],
-  'verina':           [0,   0,   0.5, 0.5],
-  'shorekeeper':      [1,   1.5, 3,   4  ],
-  'jinhsi':           [1,   2,   3,   3.5],
-  'sigrika':          [1,   3,   4,   6  ],
-  'hiyuki':           [1,   2.5, 5,   7  ],
-  'denia':            [1,   2,   3,   5  ],
-  'lucy':             [1,   2,   4,   6  ],
-  'rebecca':          [1,   2,   3,   4.5],
-  'lucilla':          [1,   2,   3.5, 4  ],
-  'yangyang':         [1.5, 2.5, 5,   6  ],
-  'yangyanggxuanling':[1.5, 2.5, 5,   6  ],
-  'suisui':           [1,   2,   3.5, 4  ],
-  // common names used in DB
-  'xiangli yao':      [1,   1.5, 2,   3  ],
-  'luuk herssen':     [1,   2,   4.5, 6  ],
-  'yangyang: xuanling':[1.5,2.5, 5,   6  ],
+const SEASONAL_RC_COST: Record<number, [number, number, number, number]> = {
+  1210: [1,   2,   5,   7  ], // Aemeath
+  1510: [1,   2,   4.5, 6  ], // Luuk Herssen
+  1508: [1.5, 2,   4.5, 5  ], // Chisa
+  1207: [1,   1.5, 4,   5  ], // Lupa
+  1209: [1,   2,   3.5, 5  ], // Mornye
+  1509: [1,   1.5, 3.5, 4  ], // Lynae
+  1411: [1,   2,   3,   4  ], // Qiuyuan
+  1208: [1.5, 3,   4.5, 6.5], // Galbrena
+  1410: [1,   2,   4,   6.5], // Iuno
+  1306: [1,   2,   4,   6  ], // Augusta
+  1608: [1,   2,   4,   6  ], // Phrolova
+  1409: [1,   2,   5,   6.5], // Cartethyia
+  1407: [1,   1.5, 4,   4.5], // Ciaccona
+  1507: [1,   2,   3.5, 5  ], // Zani
+  1607: [1,   1.5, 2.5, 4  ], // Cantarella
+  1206: [1,   2,   3,   5  ], // Brant
+  1506: [1,   1.5, 3,   3.5], // Phoebe
+  1606: [1,   1.5, 2,   2.5], // Roccia
+  1107: [1,   2,   4,   5  ], // Carlotta
+  1603: [1,   2,   3.5, 4.5], // Camellya
+  1305: [1,   1.5, 2,   3  ], // Xiangli Yao
+  1105: [1,   1.5, 2,   3  ], // Zhezhi
+  1205: [1,   2,   4,   5  ], // Changli
+  1302: [1,   1.5, 1.5, 2  ], // Yinlin
+  1404: [1,   1.5, 2,   3.5], // Jiyan
+  1405: [0,   0,   0,   0  ], // Jianxin
+  1301: [0,   0,   0,   0  ], // Calcharo
+  1203: [0,   0,   0,   0  ], // Encore
+  1104: [0,   0,   0,   0  ], // Lingyang
+  1503: [0,   0,   0.5, 0.5], // Verina
+  1505: [1,   1.5, 3,   4  ], // Shorekeeper
+  1304: [1,   2,   3,   3.5], // Jinhsi
+  1412: [1,   3,   4,   6  ], // Sigrika
+  1108: [1,   2.5, 5,   7  ], // Hiyuki
+  1211: [1,   2,   3,   5  ], // Denia
+  1511: [1,   2,   4,   6  ], // Lucy
+  1308: [1,   2,   3,   4.5], // Rebecca
+  1109: [1,   2,   3.5, 4  ], // Lucilla
+  1610: [1.5, 2.5, 5,   6  ], // Yangyang: Xuanling
+  1110: [1,   2,   3.5, 4  ], // Suisui
 };
 
-function normalizeCharName(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9àáâãèéêìíòóôõùúýăđơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỷỹỵ]/g, '');
-}
-
-function getSeasonalCost(name: string, rc: number): number {
-  const key = normalizeCharName(name);
-  const costs = SEASONAL_RC_COST[key] ?? SEASONAL_RC_COST[name.toLowerCase()];
-  if (!costs) return 0; // not in seasonal table → 0 cost (4★, Rover, etc.)
+function getSeasonalCost(id: number, rc: number): number {
+  const costs = SEASONAL_RC_COST[id];
+  if (!costs) return 0; // not in seasonal table → 0 cost (4★, Rover, standard banner, etc.)
   const idx = Math.min(Math.max(rc, 0), 3) as 0 | 1 | 2 | 3;
   return costs[idx];
 }
@@ -269,14 +258,14 @@ export class BattleComponent implements OnInit, OnDestroy {
   getCost(player: 1 | 2, char: ICharacter): number {
     if (!this.seasonalMode()) return 1;
     const rc = this.getRc(player, char.id);
-    return getSeasonalCost(char.name, rc);
+    return getSeasonalCost(char.id, rc);
   }
 
   p1TotalCost = computed(() => {
     if (!this.seasonalMode()) return this.p1picks().length;
     return this.p1picks().reduce((sum, r) => {
       const rc = this.p1RcMap()[r.id] ?? 0;
-      return sum + getSeasonalCost(r.name, rc);
+      return sum + getSeasonalCost(r.id, rc);
     }, 0);
   });
 
@@ -284,7 +273,7 @@ export class BattleComponent implements OnInit, OnDestroy {
     if (!this.seasonalMode()) return this.p2picks().length;
     return this.p2picks().reduce((sum, r) => {
       const rc = this.p2RcMap()[r.id] ?? 0;
-      return sum + getSeasonalCost(r.name, rc);
+      return sum + getSeasonalCost(r.id, rc);
     }, 0);
   });
 
@@ -711,8 +700,7 @@ export class BattleComponent implements OnInit, OnDestroy {
   // In seasonal mode, a char is "free" only if ALL their seasonal costs are 0
   isEffectivelyFree(r: ICharacter): boolean {
     if (this.seasonalMode()) {
-      const key = r.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-      const costs = SEASONAL_RC_COST[key] ?? SEASONAL_RC_COST[r.name.toLowerCase()];
+      const costs = SEASONAL_RC_COST[r.id];
       // Not in table (4★, Rover, etc.) OR all values are 0 → free
       return !costs || costs.every(c => c === 0);
     }
