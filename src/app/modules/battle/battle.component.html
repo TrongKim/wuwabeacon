@@ -317,7 +317,10 @@
             <button
               class="resonator-card"
               [class.disabled]="isDisabled(r)"
-              [class.picked]="isPickedAny(r)"
+              [class.picked]="!seasonalMode() && isPickedAny(r)"
+              [class.picked-p1]="seasonalMode() && isPickedP1(r) && !isPickedP2(r)"
+              [class.picked-p2]="seasonalMode() && isPickedP2(r) && !isPickedP1(r)"
+              [class.picked-both]="seasonalMode() && isPickedP1(r) && isPickedP2(r)"
               [class.banned]="isBanned(r)"
               [class.selected]="selectedId() === r.id"
               [disabled]="isDisabled(r) || phase() === 'idle' || phase() === 'done' || transitioning()"
@@ -325,6 +328,12 @@
               [title]="r.name"
             >
               <img [src]="iconOf(r) | resolveImage" [alt]="r.name" class="resonator-img" />
+              @if (seasonalMode() && (isPickedP1(r) || isPickedP2(r))) {
+                <div class="resonator-pick-indicator">
+                  @if (isPickedP1(r)) { <span class="pick-dot blue-dot" title="Blue đã pick"></span> }
+                  @if (isPickedP2(r)) { <span class="pick-dot red-dot" title="Red đã pick"></span> }
+                </div>
+              }
             </button>
           }
         </div>
@@ -614,6 +623,53 @@
       </div>
     </div>
   }
+}
+
+<!-- ===== SEASONAL: POPUP XÁC NHẬN PICK TRÙNG ===== -->
+@if (duplicatePickConfirm()) {
+  <div class="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div class="bg-[#0f172a] border-2 border-[#f59e0b] rounded-2xl p-7 w-96 shadow-[0_0_60px_#f59e0b40] flex flex-col items-center gap-4" (click)="$event.stopPropagation()">
+      <div class="text-3xl">⚠️</div>
+      <div class="text-base font-bold text-[#f59e0b] text-center">Pick trùng nhân vật!</div>
+      <div class="text-sm text-[#94a3b8] text-center leading-relaxed">
+        <span class="text-white font-semibold">{{ duplicatePickChar()?.name }}</span>
+        đã được đối thủ pick rồi.<br/>
+        Bạn có muốn chọn trùng nhân vật này không?
+      </div>
+      @if (duplicatePickChar()) {
+        <img [src]="iconOfPick(duplicatePickChar()!) | resolveImage" [alt]="duplicatePickChar()!.name"
+          class="w-20 h-20 rounded-xl border border-[#f59e0b] object-cover opacity-80" />
+      }
+      <div class="flex gap-3 mt-1">
+        <button (click)="cancelDuplicatePick()"
+          class="px-5 py-2 rounded-xl text-sm font-semibold border border-[#334155] bg-[#1e293b] text-[#94a3b8] hover:text-white transition-colors">
+          Hủy
+        </button>
+        <button (click)="confirmDuplicatePick()"
+          class="px-5 py-2 rounded-xl text-sm font-bold bg-[#b45309] hover:bg-[#d97706] text-white transition-colors shadow-[0_0_12px_#f59e0b40]">
+          Xác nhận pick
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ===== SEASONAL: POPUP ĐÃ PICK NHÂN VẬT NÀY RỒI ===== -->
+@if (alreadyPickedAlert()) {
+  <div class="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm" (click)="closeAlreadyPickedAlert()">
+    <div class="bg-[#0f172a] border-2 border-[#ef4444] rounded-2xl p-7 w-80 shadow-[0_0_60px_#ef444440] flex flex-col items-center gap-4" (click)="$event.stopPropagation()">
+      <div class="text-3xl">🚫</div>
+      <div class="text-base font-bold text-[#ef4444] text-center">Không thể pick!</div>
+      <div class="text-sm text-[#94a3b8] text-center leading-relaxed">
+        Bạn đã có nhân vật này trong đội của mình rồi.<br/>
+        Không thể pick trùng trong cùng một đội.
+      </div>
+      <button (click)="closeAlreadyPickedAlert()"
+        class="px-6 py-2 rounded-xl text-sm font-bold bg-[#7f1d1d] hover:bg-[#991b1b] text-white transition-colors">
+        Đã hiểu
+      </button>
+    </div>
+  </div>
 }
 
 @if (showEditP1()) {

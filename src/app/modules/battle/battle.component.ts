@@ -223,6 +223,13 @@ export class BattleComponent implements OnInit, OnDestroy {
   showBanAlert = signal(false);
   selectedId = signal<number | null>(null);
 
+  // Seasonal pick popups
+  // Popup xác nhận pick trùng (bên đối thủ đã pick nhân vật này)
+  duplicatePickConfirm = signal(false);
+  duplicatePickChar = signal<ICharacter | null>(null);
+  // Popup cảnh báo khi bên mình đã pick nhân vật này rồi
+  alreadyPickedAlert = signal(false);
+
   // Undo — plain array + reactive counter
   undoStack: BattleSnapshot[] = [];
   undoCount = signal(0);
@@ -302,6 +309,8 @@ export class BattleComponent implements OnInit, OnDestroy {
     const el = this.filterElement();
     return this.allResonators().filter(r => {
       if (this.bannedIds().has(r.id)) return false;
+      // Chế độ mùa giải: nhân vật đã pick chỉ xám xịu chứ không bị loại khỏi pool
+      if (!this.seasonalMode() && this.pickedIds().has(r.id)) return false;
       if (search && !r.name.toLowerCase().includes(search)) return false;
       if (el && r.element !== el) return false;
       return true;
@@ -490,7 +499,7 @@ export class BattleComponent implements OnInit, OnDestroy {
     const p = this.phase();
     if (p === 'idle' || p === 'done' || this.transitioning() || this.showBanAlert()) return;
     if (this.bannedIds().has(r.id)) return;
-    if (this.isPickPhase() && this.pickedIds().has(r.id)) return;
+    if (this.isPickPhase() && !this.seasonalMode() && this.pickedIds().has(r.id)) return;
 
     // First click → highlight
     if (this.selectedId() !== r.id) {
@@ -511,9 +520,53 @@ export class BattleComponent implements OnInit, OnDestroy {
     }
 
     if (this.isPickPhase()) {
-      if (this.pickedIds().has(r.id)) return;
-      if (this.isP1Turn()) this.p1picks.update(b => [...b, r]);
-      else                 this.p2picks.update(b => [...b, r]);
+      if (!this.seasonalMode()) {
+        // Chế độ thường: không cho pick trùng
+        if (this.pickedIds().has(r.id)) return;
+        if (this.isP1Turn()) this.p1picks.update(b => [...b, r]);
+        else                 this.p2picks.update(b => [...b, r]);
+      } else {
+        // Chế độ mùa giải: cho phép pick trùng với popup xác nhận
+        const p1HasIt = this.p1picks().some(x => x.id === r.id);
+        const p2HasIt = this.p2picks().some(x => x.id === r.id);
+
+        if (this.isP1Turn()) {
+          if (p1HasIt) {
+            // Bên mình đã có rồi → cảnh báo, hủy pick
+            this.undoStack.pop();
+            this.undoCount.set(this.undoStack.length);
+            this.alreadyPickedAlert.set(true);
+            return;
+          }
+          if (p2HasIt) {
+            // Đối thủ đã pick nhân vật này → hỏi xác nhận
+            this.undoStack.pop();
+            this.undoCount.set(this.undoStack.length);
+            this.duplicatePickChar.set(r);
+            this.duplicatePickConfirm.set(true);
+            return;
+          }
+          this.p1picks.update(b => [...b, r]);
+        } else {
+          if (p2HasIt) {
+            // Bên mình đã có rồi → cảnh báo, hủy pick
+            this.undoStack.pop();
+            this.undoCount.set(this.undoStack.length);
+            this.alreadyPickedAlert.set(true);
+            return;
+          }
+          if (p1HasIt) {
+            // Đối thủ đã pick nhân vật này → hỏi xác nhận
+            this.undoStack.pop();
+            this.undoCount.set(this.undoStack.length);
+            this.duplicatePickChar.set(r);
+            this.duplicatePickConfirm.set(true);
+            return;
+          }
+          this.p2picks.update(b => [...b, r]);
+        }
+      }
+
       const needed = PHASE_PICKS[p] ?? 1;
       const done = this.phasePickCount() + 1;
       this.phasePickCount.set(done);
@@ -521,14 +574,47 @@ export class BattleComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Xác nhận pick trùng (chế độ mùa giải) */
+  confirmDuplicatePick(): void {
+    const r = this.duplicatePickChar();
+    if (!r) return;
+    this.duplicatePickConfirm.set(false);
+    this.duplicatePickChar.set(null);
+
+    // Push undo và thực hiện pick
+    this.pushUndo();
+    const p = this.phase();
+    if (this.isP1Turn()) this.p1picks.update(b => [...b, r]);
+    else                 this.p2picks.update(b => [...b, r]);
+
+    const needed = PHASE_PICKS[p] ?? 1;
+    const done = this.phasePickCount() + 1;
+    this.phasePickCount.set(done);
+    if (done >= needed) this.advanceAfterAction();
+  }
+
+  cancelDuplicatePick(): void {
+    this.duplicatePickConfirm.set(false);
+    this.duplicatePickChar.set(null);
+    this.selectedId.set(null);
+  }
+
+  closeAlreadyPickedAlert(): void {
+    this.alreadyPickedAlert.set(false);
+    this.selectedId.set(null);
+  }
+
   isDisabled(r: ICharacter): boolean {
     if (this.bannedIds().has(r.id)) return true;
-    if (this.isPickPhase() && this.pickedIds().has(r.id)) return true;
+    // Chế độ mùa giải: pick phase cho phép chọn trùng (sẽ có popup xác nhận)
+    if (this.isPickPhase() && !this.seasonalMode() && this.pickedIds().has(r.id)) return true;
     return false;
   }
 
   isBanned(r: ICharacter): boolean   { return this.bannedIds().has(r.id); }
   isPickedAny(r: ICharacter): boolean { return this.pickedIds().has(r.id); }
+  isPickedP1(r: ICharacter): boolean  { return this.p1picks().some(x => x.id === r.id); }
+  isPickedP2(r: ICharacter): boolean  { return this.p2picks().some(x => x.id === r.id); }
 
   // ===== EDIT NAME =====
   openEditP1(): void  { this.editNameP1 = this.p1name; this.showEditP1.set(true); }

@@ -160,6 +160,10 @@
   cursor: pointer;
   transition: all 0.2s;
 
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
   &:hover {
     border-color: #60a5fa;
     color: white;
@@ -515,6 +519,22 @@
       filter: grayscale(80%) brightness(0.4);
     }
   }
+
+  // Seasonal mode: picked by one/both teams
+  &.picked-p1 {
+    border-color: #1e3a8a;
+    .resonator-img { filter: grayscale(60%) brightness(0.5); }
+  }
+
+  &.picked-p2 {
+    border-color: #7f1d1d;
+    .resonator-img { filter: grayscale(60%) brightness(0.5); }
+  }
+
+  &.picked-both {
+    border-color: #92400e;
+    .resonator-img { filter: grayscale(70%) brightness(0.45); }
+  }
 }
 
 .resonator-img {
@@ -523,6 +543,35 @@
   object-fit: contain;
   border-radius: 8px;
   transition: filter 0.3s;
+}
+
+// Pick indicator dots (seasonal mode)
+.resonator-pick-indicator {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.pick-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+
+  &.blue-dot {
+    background: #60a5fa;
+    box-shadow: 0 0 4px #3b82f6;
+  }
+
+  &.red-dot {
+    background: #f87171;
+    box-shadow: 0 0 4px #ef4444;
+  }
 }
 
 .resonator-name {
